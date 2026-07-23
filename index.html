@@ -3,74 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YANDEH.OS — Como é ser Yandeco?</title>
+    <title>YANDEH — Do Big Bang ao Código</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* base código + vermelho da marca */
-            --grafite: #16171a;
-            --preto: #0a0a0a;
+            /* ===== PALETA OFICIAL YANDEH ===== */
+            --grafite: #1a1a1a;
+            --preto: #0f0f0f;
             --branco: #FFFFFF;
-            --cinza-claro: #BABCBD;
-            --cinza-medio: #8a8f96;
-            --cinza-escuro: #5c636c;
-            --osso: #EAEAEA;
-            --red-line: #FF4626;
-            --red-line-dim: rgba(255, 70, 38, 0.15);
-            --red-line-glow: rgba(255, 70, 38, 0.4);
-            --brut: 0; /* 0 = clean (topo) · 1 = bruto (base) */
+            --cinza-claro: #d3d3d3;
+            --cinza-medio: #7a7a7a;
+            --cinza-escuro: #565656;
+            --osso: #e9e2d3;
+            --red-line: #FF2E01;
+            --red-line-dim: rgba(255, 46, 1, 0.15);
+            --red-line-glow: rgba(255, 46, 1, 0.4);
+            /* acento único da marca (sem arco-íris) */
+            --yh-red: var(--red-line);
+            --yh-orange: var(--red-line);
+            --yh-orange-light: var(--red-line);
+            --yh-magenta: var(--red-line);
+            --yh-pink: var(--red-line);
+            --deep-space: #141414;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--grafite);
-            color: var(--branco);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-        ::selection { background: var(--red-line); color: var(--branco); }
+        body { font-family: 'Space Grotesk', sans-serif; background: var(--deep-space); color: var(--branco); overflow-x: hidden; line-height: 1.6; }
+        ::selection { background: var(--yh-magenta); color: var(--branco); }
 
-        /* ===== BOOT ===== */
-        #boot-screen {
-            position: fixed; inset: 0; background: var(--grafite); z-index: 9999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-        }
-        #boot-screen.done { opacity: 0; visibility: hidden; pointer-events: none; }
-        .boot-logo { font-family: 'JetBrains Mono', monospace; font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 700; letter-spacing: 0.15em; margin-bottom: 3rem; }
-        .boot-logo .yandeh { color: var(--branco); }
-        .boot-logo .os { color: var(--red-line); animation: pulse-red 2s ease-in-out infinite; }
-        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .boot-terminal { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.9rem); color: var(--cinza-claro); width: min(90%, 500px); text-align: left; }
-        .boot-line { opacity: 0; transform: translateY(8px); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.6rem; }
-        .boot-line.visible { opacity: 1; transform: translateY(0); transition: all 0.4s ease; }
-        .boot-prompt { color: var(--red-line); font-weight: 600; }
-        .boot-status { color: var(--osso); }
-        .boot-ok { color: #4ade80; font-weight: 600; }
-        .boot-progress { width: min(90%, 400px); height: 2px; background: rgba(255,255,255,0.08); margin-top: 2rem; overflow: hidden; opacity: 0; transition: opacity 0.3s ease; }
-        .boot-progress.visible { opacity: 1; }
-        .boot-progress-bar { height: 100%; width: 0%; background: var(--red-line); transition: width 0.1s linear; }
-        .boot-enter { margin-top: 2.5rem; padding: 1rem 3rem; border: 1px solid var(--red-line); background: transparent; color: var(--red-line); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; position: relative; overflow: hidden; }
-        .boot-enter.visible { opacity: 1; transform: translateY(0); }
-        .boot-enter:hover { background: var(--red-line); color: var(--branco); box-shadow: 0 0 30px var(--red-line-glow); }
+        /* ===== BIG BANG (loading) ===== */
+        #bigbang { position: fixed; inset: 0; z-index: 9999; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 1s ease, visibility 1s ease; overflow: hidden; }
+        #bigbang.done { opacity: 0; visibility: hidden; pointer-events: none; }
+        #bang-canvas { position: absolute; inset: 0; }
+        #bang-flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+        #bang-flash.fire { animation: flash 0.6s ease-out; }
+        @keyframes flash { 0% { opacity: 0; } 8% { opacity: 0.9; } 100% { opacity: 0; } }
+        .bang-content { position: relative; z-index: 2; text-align: center; opacity: 0; transform: scale(0.9); transition: all 1s cubic-bezier(0.16,1,0.3,1); }
+        .bang-content.show { opacity: 1; transform: scale(1); }
+        .bang-mark { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(2.6rem, 11vw, 7rem); letter-spacing: 0.3em; padding-left: 0.3em; color: var(--branco); text-shadow: 0 0 60px rgba(255,46,1,0.5), 0 0 120px rgba(255,46,1,0.3); }
+        .bang-sub { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--cinza-claro); margin-top: 1.2rem; }
+        .bang-enter { margin-top: 2.8rem; padding: 1rem 3rem; border: 1px solid var(--yh-magenta); background: transparent; color: var(--branco); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase; cursor: pointer; transition: all 0.4s ease; }
+        .bang-enter:hover { background: var(--yh-magenta); box-shadow: 0 0 40px rgba(255,46,1,0.5); }
 
-        /* ===== CANVAS / OVERLAYS ===== */
-        #particles-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.35; }
-        /* texturas "brutas" que intensificam no scroll */
-        #scanlines {
-            position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
-            background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.5) 3px);
+        /* ===== CAMADAS CÓSMICAS ===== */
+        #space { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: opacity 0.3s linear; }
+        #space .nebula {
+            position: absolute; inset: -20%;
+            background:
+                radial-gradient(ellipse 50% 40% at 28% 22%, rgba(255,255,255,0.05), transparent 60%),
+                radial-gradient(ellipse 46% 38% at 76% 66%, rgba(233,226,211,0.04), transparent 62%),
+                linear-gradient(118deg, transparent 42%, rgba(255,255,255,0.028) 50%, transparent 58%);
+            animation: drift 70s ease-in-out infinite alternate;
         }
-        #grain {
-            position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0; mix-blend-mode: overlay;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-        }
+        @keyframes drift { 0% { transform: translate3d(0,0,0) scale(1);} 100% { transform: translate3d(-2%,-2%,0) scale(1.08);} }
+        /* planetas sóbrios (esferas escuras + leve luz vermelha) */
+        .planet { position: absolute; border-radius: 50%; }
+        .planet-1 { width: clamp(120px, 17vw, 230px); height: clamp(120px, 17vw, 230px); top: 14%; right: 9%;
+            background: radial-gradient(circle at 34% 30%, #3a3d42, #1b1d21 55%, #0e0f12 100%);
+            box-shadow: 0 0 55px rgba(255,255,255,0.05), inset -22px -18px 46px rgba(0,0,0,0.65); animation: float1 20s ease-in-out infinite; }
+        .planet-1::after { content: ''; position: absolute; inset: -6% -32%; border: 1px solid rgba(255,255,255,0.14); border-radius: 50%; transform: rotate(16deg); animation: ringspin 44s linear infinite; }
+        .planet-3 { width: clamp(48px, 7vw, 88px); height: clamp(48px, 7vw, 88px); top: 30%; left: 15%;
+            background: radial-gradient(circle at 35% 32%, #45484e, #232529 60%, #131417 100%);
+            box-shadow: 0 0 26px rgba(0,0,0,0.5); animation: float2 26s ease-in-out infinite; }
+        @keyframes float1 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-28px); } }
+        @keyframes float2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(24px); } }
+        @keyframes ringspin { to { transform: rotate(376deg); } }
+        #stars-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; transition: opacity 0.3s linear; }
+        /* detritos -> código (camada que atravessa a página toda) */
+        #debris-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.85; }
+        /* vinheta: fecha conforme desce = mais profundo/íntimo */
+        #vignette { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity 0.25s linear;
+            background: radial-gradient(ellipse 92% 92% at 50% 42%, transparent 40%, rgba(8,6,5,0.92) 100%); }
 
         /* ===== NAV ===== */
-        .nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(22,23,26,0.95), transparent); opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; }
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(10,13,19,0.9), transparent); opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; }
         .nav-bar.visible { opacity: 1; transform: translateY(0); }
         .nav-logo { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; letter-spacing: 0.2em; }
         .nav-logo span { color: var(--red-line); }
@@ -78,58 +86,63 @@
         .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red-line); animation: blink 2s ease-in-out infinite; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* ===== SECTIONS + NÍVEIS DE BRUTALISMO ===== */
-        /* vars default (clean) — cada nível endurece */
-        .section {
-            position: relative; z-index: 2; min-height: 100vh;
-            display: flex; flex-direction: column; justify-content: center; padding: 11rem 2rem;
-            --card-radius: 6px;
-            --card-border: 1px solid rgba(255,255,255,0.1);
-            --card-bg: rgba(255,255,255,0.03);
-            --title-font: 'Space Grotesk', sans-serif;
-            --title-spacing: -0.01em;
-            --title-transform: none;
-        }
-        .b2 { --card-radius: 3px; --card-border: 1px solid rgba(255,255,255,0.18); --card-bg: rgba(255,255,255,0.02); }
-        .b3 {
-            --card-radius: 0px; --card-border: 1px solid rgba(255,70,38,0.45); --card-bg: rgba(0,0,0,0.35);
-            --title-font: 'JetBrains Mono', monospace; --title-spacing: 0; --title-transform: uppercase;
-        }
-        .b4 {
-            --card-radius: 0px; --card-border: 2px solid var(--red-line); --card-bg: var(--preto);
-            --title-font: 'JetBrains Mono', monospace; --title-spacing: 0; --title-transform: uppercase;
-        }
-        .b3, .b4 { background: linear-gradient(180deg, rgba(0,0,0,0.3), var(--preto)); }
-
+        /* ===== SECTIONS ===== */
+        .section { position: relative; z-index: 2; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 11rem 2rem; }
+        /* topo transparente (mostra galáxia) · base escura (mostra código) */
+        .zone-code { background: linear-gradient(180deg, rgba(10,13,19,0.6), var(--preto)); }
         .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cinza-escuro); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 1rem; }
         .section-label::before { content: ''; width: 30px; height: 1px; background: var(--red-line); }
-        .b3 .section-label, .b4 .section-label { color: var(--red-line); }
-        .b4 .section-label::before { content: '>>'; width: auto; height: auto; background: none; color: var(--red-line); font-weight: 700; }
-        .section-title { font-family: var(--title-font); font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 700; line-height: 1.12; margin-bottom: 2.75rem; max-width: 840px; letter-spacing: var(--title-spacing); text-transform: var(--title-transform); }
-        .section-title .highlight { color: var(--osso); }
-        .b3 .section-title .highlight, .b4 .section-title .highlight { color: var(--red-line); }
-        .b4 .section-title { animation: brut-flicker 5s steps(1) infinite; }
-        @keyframes brut-flicker { 0%, 96%, 100% { text-shadow: none; } 97% { text-shadow: 2px 0 var(--red-line), -2px 0 #00e0d0; } 98% { text-shadow: -2px 0 var(--red-line), 2px 0 #00e0d0; } }
+        .section-title { font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 700; line-height: 1.12; margin-bottom: 2.75rem; max-width: 840px; letter-spacing: -0.01em; }
+        .section-title .highlight { color: var(--yh-pink); }
+        .zone-code .section-title .highlight { color: var(--red-line); }
         .section-subtitle { font-size: clamp(1.05rem, 2.2vw, 1.45rem); color: var(--cinza-claro); max-width: 640px; line-height: 1.8; }
-        .b3 .section-subtitle, .b4 .section-subtitle { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.85rem, 1.8vw, 1.05rem); line-height: 1.7; }
+        .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; transition: all 0.4s ease; backdrop-filter: blur(3px); position: relative; }
+        /* molduras técnicas nos cantos dos cards */
+        .card::before, .card::after { content: ''; position: absolute; width: 14px; height: 14px; border: 1px solid rgba(255,46,1,0.5); pointer-events: none; }
+        .card::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .card::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
-        /* card genérico dirigido pelas vars do nível */
-        .card { background: var(--card-bg); border: var(--card-border); border-radius: var(--card-radius); transition: all 0.4s ease; }
+        /* ===== GRÁFICOS DE PRIMEIRO PLANO ===== */
+        .valor-icon { width: 44px; height: 44px; color: var(--red-line); margin-bottom: 1.3rem; }
+        .valor-icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+        .valor-bignum { position: absolute; top: 0.4rem; right: 1.1rem; font-family: 'JetBrains Mono', monospace; font-size: 4.4rem; font-weight: 700; line-height: 1; color: rgba(255,255,255,0.05); pointer-events: none; }
+        /* órbita gráfica do hero */
+        .hero-badge, .hero-title, .hero-subtitle, .hero-scroll { position: relative; z-index: 2; }
+        .hero-orbit { position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%); width: min(90vw, 760px); height: min(90vw, 760px); z-index: 0; pointer-events: none; }
+        .hero-orbit .ring { position: absolute; top: 50%; left: 50%; border: 1px solid rgba(255,255,255,0.09); border-radius: 50%; transform: translate(-50%,-50%); }
+        .hero-orbit .r1 { width: 34%; height: 34%; animation: spin 26s linear infinite; }
+        .hero-orbit .r2 { width: 64%; height: 64%; animation: spin 46s linear infinite reverse; }
+        .hero-orbit .r3 { width: 100%; height: 100%; border-style: dashed; border-color: rgba(255,255,255,0.06); animation: spin 95s linear infinite; }
+        .hero-orbit .ring::before { content: ''; position: absolute; top: -5px; left: 50%; width: 9px; height: 9px; border-radius: 50%; background: var(--red-line); box-shadow: 0 0 14px var(--red-line-glow); transform: translateX(-50%); }
+        .hero-orbit .core { position: absolute; top: 50%; left: 50%; width: 64px; height: 64px; border-radius: 50%; transform: translate(-50%,-50%); background: radial-gradient(circle at 40% 38%, #4a4a4a, #1a1a1a 70%); box-shadow: 0 0 44px rgba(255,46,1,0.18); }
+        @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+        /* ===== MAIS MOVIMENTO ===== */
+        .hero-orbit .core { animation: corepulse 3.2s ease-in-out infinite; }
+        @keyframes corepulse { 0%,100% { box-shadow: 0 0 44px rgba(255,46,1,0.18); } 50% { box-shadow: 0 0 80px rgba(255,46,1,0.42); } }
+        .hero-orbit .ring::after { content: ''; position: absolute; bottom: -4px; left: 50%; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.55); transform: translateX(-50%); }
+        .hero-orbit .r4 { width: 84%; height: 84%; border: 1px solid rgba(255,255,255,0.05); animation: spin 68s linear infinite reverse; }
+        .valor-icon { animation: iconfloat 5s ease-in-out infinite; transition: transform 0.4s ease; }
+        @keyframes iconfloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .valor-card:hover .valor-icon { transform: scale(1.12) rotate(-5deg); }
+        .card::before, .card::after { transition: all 0.4s ease; }
+        .card:hover::before, .card:hover::after { width: 22px; height: 22px; border-color: var(--red-line); }
+        .section-label::before { animation: linepulse 2.6s ease-in-out infinite; }
+        @keyframes linepulse { 0%,100% { width: 30px; opacity: 1; } 50% { width: 48px; opacity: 0.45; } }
 
-        /* ===== HERO (clean) ===== */
+        /* ===== HERO ===== */
         .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem; position: relative; z-index: 2; }
-        .hero-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--red-line); border: 1px solid rgba(255,70,38,0.3); padding: 0.5rem 1.5rem; margin-bottom: 2rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease 0.2s; }
+        .hero-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--yh-pink); border: 1px solid rgba(255,46,1,0.35); padding: 0.5rem 1.5rem; margin-bottom: 2rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease 0.2s; }
         .hero-badge.visible { opacity: 1; transform: translateY(0); }
         .hero-title { font-size: clamp(2.5rem, 8vw, 6.5rem); font-weight: 700; line-height: 1; margin-bottom: 1.8rem; letter-spacing: -0.02em; }
         .hero-title .line1 { display: block; opacity: 0; transform: translateY(40px); transition: all 1s ease 0.4s; }
-        .hero-title .line2 { display: block; color: var(--osso); opacity: 0; transform: translateY(40px); transition: all 1s ease 0.6s; }
+        .hero-title .line2 { display: block; color: var(--yh-pink); text-shadow: 0 0 50px rgba(255,46,1,0.4); opacity: 0; transform: translateY(40px); transition: all 1s ease 0.6s; }
         .hero-title.visible .line1, .hero-title.visible .line2 { opacity: 1; transform: translateY(0); }
         .hero-subtitle { font-size: clamp(1rem, 2vw, 1.3rem); color: var(--cinza-claro); max-width: 560px; margin-bottom: 3rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease 0.8s; }
         .hero-subtitle.visible { opacity: 1; transform: translateY(0); }
         .hero-scroll { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; transition: opacity 0.8s ease 1.4s; }
         .hero-scroll.visible { opacity: 1; }
         .hero-scroll-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--cinza-escuro); }
-        .hero-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--red-line), transparent); animation: scroll-pulse 2s ease-in-out infinite; }
+        .hero-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--yh-pink), transparent); animation: scroll-pulse 2s ease-in-out infinite; }
         @keyframes scroll-pulse { 0%, 100% { opacity: 0.3; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(1.3); } }
 
         /* ===== ORIGEM ===== */
@@ -142,14 +155,14 @@
         @media (max-width: 768px) { .origem-path { grid-template-columns: 1fr; gap: 2rem; } }
         .waypoint { padding: 2.75rem; opacity: 0; transform: translateY(30px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
         .waypoint.visible { opacity: 1; transform: translateY(0); }
-        .waypoint-year { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 600; color: var(--red-line); letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+        .waypoint-year { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 600; color: var(--yh-pink); letter-spacing: 0.05em; margin-bottom: 0.4rem; }
         .waypoint-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--cinza-escuro); margin-bottom: 1.5rem; }
         .waypoint-text { font-size: 1rem; color: var(--cinza-claro); line-height: 1.7; }
         .waypoint-text strong { color: var(--branco); font-weight: 600; }
         .path-line { position: relative; display: flex; align-items: center; justify-content: center; }
-        .path-line::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, var(--red-line), rgba(255,70,38,0.2)); }
-        .path-line::after { content: '→'; position: relative; color: var(--red-line); font-family: 'JetBrains Mono', monospace; }
-        @media (max-width: 768px) { .path-line::before { left: 50%; right: auto; top: 0; bottom: 0; width: 1px; height: 100%; background: linear-gradient(180deg, var(--red-line), rgba(255,70,38,0.2)); } .path-line::after { content: '↓'; } }
+        .path-line::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, var(--yh-pink), rgba(255,46,1,0.2)); }
+        .path-line::after { content: '→'; position: relative; color: var(--yh-pink); font-family: 'JetBrains Mono', monospace; }
+        @media (max-width: 768px) { .path-line::before { left: 50%; right: auto; top: 0; bottom: 0; width: 1px; height: 100%; background: linear-gradient(180deg, var(--yh-pink), rgba(255,46,1,0.2)); } .path-line::after { content: '↓'; } }
         .origem-close { text-align: center; margin-top: 4rem; font-size: clamp(1.1rem, 2.5vw, 1.6rem); font-weight: 300; color: var(--osso); opacity: 0; transform: translateY(20px); transition: all 0.9s ease; }
         .origem-close.visible { opacity: 1; transform: translateY(0); }
         .origem-close strong { color: var(--branco); font-weight: 600; }
@@ -164,15 +177,16 @@
         @media (max-width: 900px) { .valores-grid { grid-template-columns: 1fr; } }
         .valor-card { padding: 2.5rem; position: relative; overflow: hidden; opacity: 0; transform: translateY(30px); }
         .valor-card.visible { opacity: 1; transform: translateY(0); }
-        .valor-card:hover { border-color: rgba(255,70,38,0.4); transform: translateY(-4px); }
-        .valor-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--red-line); margin-bottom: 1rem; }
+        .valor-card:hover { border-color: rgba(255,46,1,0.4); transform: translateY(-4px); }
+        .valor-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--yh-pink); margin-bottom: 1rem; }
         .valor-title { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.8rem; color: var(--branco); }
         .valor-essence { font-size: 0.95rem; color: var(--osso); line-height: 1.6; margin-bottom: 1.6rem; font-style: italic; }
         .valor-list { list-style: none; }
         .valor-list li { font-size: 0.9rem; color: var(--cinza-claro); margin-bottom: 0.7rem; padding-left: 1.3rem; position: relative; line-height: 1.5; }
-        .valor-list li::before { content: '→'; position: absolute; left: 0; color: var(--red-line); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+        .valor-list li::before { content: '→'; position: absolute; left: 0; color: var(--yh-pink); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
 
         /* ===== CENÁRIOS ===== */
+        .cenarios { background: linear-gradient(180deg, transparent, rgba(10,13,19,0.5)); }
         .run-container { max-width: 900px; margin: 0 auto; width: 100%; }
         .scenario-card { padding: 3rem; margin-bottom: 2.5rem; position: relative; opacity: 0; transform: translateY(30px); }
         .scenario-card.visible { opacity: 1; transform: translateY(0); }
@@ -188,7 +202,7 @@
         @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .scenario-response .response-title { font-weight: 600; color: var(--red-line); margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
 
-        /* ===== DEBUGGER (bruto) ===== */
+        /* ===== DEBUGGER ===== */
         .debugger-container { max-width: 1000px; margin: 0 auto; width: 100%; }
         .bug-card { padding: 2.5rem; margin-bottom: 1.5rem; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.6s ease; }
         .bug-card.visible { opacity: 1; transform: translateX(0); }
@@ -205,7 +219,7 @@
         .bug-response.visible { display: block; animation: fade-in-up 0.5s ease; }
         .bug-response .status { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #4ade80; margin-bottom: 0.3rem; }
 
-        /* ===== CÓDIGO (bruto) ===== */
+        /* ===== CÓDIGO ===== */
         .codigo-container { max-width: 1000px; margin: 0 auto; width: 100%; }
         .code-block { font-family: 'JetBrains Mono', monospace; background: var(--preto); border: 1px solid rgba(255,70,38,0.45); padding: 3rem; margin-top: 4.5rem; position: relative; overflow: hidden; }
         .code-block::before { content: 'yandeh.culture'; position: absolute; top: 0; right: 0; padding: 0.5rem 1rem; font-size: 0.6rem; color: var(--cinza-escuro); background: rgba(255,255,255,0.03); }
@@ -219,7 +233,7 @@
         .code-variable { color: var(--branco); }
         .code-operator { color: var(--cinza-medio); }
 
-        /* ===== RITUAIS (mais bruto) ===== */
+        /* ===== RITUAIS ===== */
         .rituais-container { max-width: 1200px; margin: 0 auto; width: 100%; }
         .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 5.5rem; }
         @media (max-width: 900px) { .action-grid { grid-template-columns: 1fr 1fr; } }
@@ -227,12 +241,12 @@
         .action-card { padding: 2.5rem; position: relative; overflow: hidden; opacity: 0; transform: translateY(20px); }
         .action-card.visible { opacity: 1; transform: translateY(0); }
         .action-card:hover { border-color: var(--red-line); }
-        .action-emoji { font-size: 1.6rem; margin-bottom: 1rem; filter: grayscale(0.2); }
+        .action-emoji { font-size: 1.6rem; margin-bottom: 1rem; }
         .action-exe { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--red-line); margin-bottom: 0.5rem; }
         .action-title { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--branco); text-transform: uppercase; letter-spacing: 0.02em; }
-        .action-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--cinza-claro); line-height: 1.6; }
+        .action-desc { font-size: 0.9rem; color: var(--cinza-claro); line-height: 1.6; }
 
-        /* ===== FINAL (máximo bruto) ===== */
+        /* ===== FINAL ===== */
         .final { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6rem 2rem; position: relative; z-index: 2; background: var(--preto); }
         .final-terminal { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.9rem); color: var(--cinza-claro); width: min(90%, 460px); text-align: left; margin-bottom: 3.5rem; }
         .final-line-term { opacity: 0; transform: translateY(8px); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
@@ -241,9 +255,9 @@
         .term-status { color: var(--osso); }
         .term-ok { color: #4ade80; font-weight: 600; }
         .final-content { max-width: 700px; }
-        .final-line { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: var(--cinza-claro); margin-bottom: 1rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
+        .final-line { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--cinza-claro); margin-bottom: 1rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
         .final-line.visible { opacity: 1; transform: translateY(0); }
-        .final-line.highlight { font-family: 'JetBrains Mono', monospace; font-size: clamp(1.4rem, 4vw, 2.4rem); font-weight: 700; color: var(--branco); text-transform: uppercase; margin: 2rem 0; }
+        .final-line.highlight { font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; color: var(--branco); margin: 2rem 0; }
         .final-line.welcome { font-family: 'JetBrains Mono', monospace; font-size: clamp(1rem, 3vw, 1.6rem); letter-spacing: 0.15em; color: var(--red-line); margin-top: 3rem; font-weight: 700; }
         .final-line.welcome::after { content: '_'; animation: caret 1s steps(1) infinite; }
         @keyframes caret { 50% { opacity: 0; } }
@@ -254,44 +268,43 @@
         .footer { padding: 3rem 2rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); background: var(--preto); position: relative; z-index: 2; }
         .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--cinza-escuro); }
 
-        /* ===== REVEAL ===== */
-        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .reveal.visible { opacity: 1; transform: translateY(0); }
-
-        /* ===== SCROLL INDICATOR ===== */
+        /* ===== REVEAL / SCROLL ===== */
+        .reveal { opacity: 0; transform: translateY(42px) scale(0.985); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0) scale(1); }
         .scroll-indicator { position: fixed; right: 2rem; top: 50%; transform: translateY(-50%); z-index: 50; display: flex; flex-direction: column; gap: 0.8rem; }
         .scroll-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cinza-escuro); transition: all 0.3s ease; cursor: pointer; }
-        .scroll-dot.active { background: var(--red-line); transform: scale(1.5); }
+        .scroll-dot.active { background: var(--yh-pink); transform: scale(1.5); }
         @media (max-width: 768px) { .scroll-indicator { display: none; } }
 
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
             .section { padding: 6rem 1.5rem; }
             .nav-bar { padding: 1rem 1.5rem; }
             .code-block { padding: 1.75rem; overflow-x: auto; }
             .scenario-card, .bug-card, .valor-card, .action-card, .waypoint { padding: 2rem; }
+            .planet-1, .planet-2 { opacity: 0.7; }
         }
     </style>
 </head>
 <body>
 
-    <!-- BOOT -->
-    <div id="boot-screen">
-        <div class="boot-logo"><span class="yandeh">YANDEH</span><span class="os">.OS</span></div>
-        <div class="boot-terminal">
-            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">init propósito</span> <span class="boot-ok">[OK]</span></div>
-            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">carregar pessoas</span> <span class="boot-ok">[CONECTADO]</span></div>
-            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">ativar dados</span> <span class="boot-ok">[ATIVO]</span></div>
-            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">montar cultura</span> <span class="boot-ok">[LOADED]</span></div>
-            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">executar</span> <span class="boot-ok">[RUNNING...]</span></div>
+    <!-- BIG BANG -->
+    <div id="bigbang">
+        <canvas id="bang-canvas"></canvas>
+        <div id="bang-flash"></div>
+        <div class="bang-content" id="bang-content">
+            <div class="bang-mark">YANDEH</div>
+            <div class="bang-sub">no princípio, uma ideia</div>
+            <button class="bang-enter" id="bang-enter" onclick="enterSite()">Entrar no universo</button>
         </div>
-        <div class="boot-progress"><div class="boot-progress-bar" id="boot-progress-bar"></div></div>
-        <button class="boot-enter" id="boot-enter" onclick="enterSystem()">ENTER CULTURA</button>
     </div>
 
-    <canvas id="particles-canvas"></canvas>
-    <div id="scanlines" aria-hidden="true"></div>
-    <div id="grain" aria-hidden="true"></div>
+    <!-- CAMADAS CÓSMICAS -->
+    <div id="space" aria-hidden="true">
+        <div class="nebula"></div>
+    </div>
+    <canvas id="stars-canvas" aria-hidden="true"></canvas>
+    <canvas id="debris-canvas" aria-hidden="true"></canvas>
+    <div id="vignette" aria-hidden="true"></div>
 
     <!-- NAV -->
     <nav class="nav-bar" id="nav-bar">
@@ -299,7 +312,6 @@
         <div class="nav-status"><span class="nav-dot"></span>SYSTEM ONLINE</div>
     </nav>
 
-    <!-- SCROLL INDICATOR -->
     <div class="scroll-indicator" id="scroll-indicator">
         <div class="scroll-dot active" data-section="hero"></div>
         <div class="scroll-dot" data-section="origem"></div>
@@ -313,6 +325,13 @@
 
     <!-- HERO -->
     <section class="hero" id="hero">
+        <div class="hero-orbit" aria-hidden="true">
+            <span class="core"></span>
+            <span class="ring r1"></span>
+            <span class="ring r2"></span>
+            <span class="ring r4"></span>
+            <span class="ring r3"></span>
+        </div>
         <div class="hero-badge" id="hero-badge">PROPÓSITO</div>
         <h1 class="hero-title" id="hero-title">
             <span class="line1">Impulsionar os negócios</span>
@@ -327,8 +346,8 @@
         </div>
     </section>
 
-    <!-- ORIGEM (b1) -->
-    <section class="origem section b1" id="origem">
+    <!-- ORIGEM -->
+    <section class="origem section" id="origem">
         <div class="origem-container">
             <div class="origem-header">
                 <div class="section-label reveal">01 — A ORIGEM</div>
@@ -352,8 +371,8 @@
         </div>
     </section>
 
-    <!-- VALORES (b2) -->
-    <section class="valores section b2" id="valores">
+    <!-- VALORES -->
+    <section class="valores section" id="valores">
         <div class="valores-container">
             <div class="valores-header">
                 <div class="section-label reveal">02 — OS VALORES</div>
@@ -362,37 +381,43 @@
             </div>
             <div class="valores-grid">
                 <div class="valor-card card reveal">
-                    <div class="valor-number">01</div>
+                    <div class="valor-bignum">01</div>
+                    <div class="valor-icon"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 6.1 6.6.5-5 4.3 1.6 6.4L12 16.9 6.6 20.3 8.2 13.9 3.2 9.6l6.6-.5z"/></svg></div>
                     <div class="valor-title">Encantar o Cliente</div>
                     <div class="valor-essence">"O cliente está no começo de toda decisão, não só no fim."</div>
                     <ul class="valor-list"><li>Escutar para valer</li><li>Surpreender e fidelizar</li><li>Cuidar do começo ao fim</li></ul>
                 </div>
                 <div class="valor-card card reveal">
-                    <div class="valor-number">02</div>
+                    <div class="valor-bignum">02</div>
+                    <div class="valor-icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="12" r="5.2"/><circle cx="15" cy="12" r="5.2"/></svg></div>
                     <div class="valor-title">Nós pela Yandeh</div>
                     <div class="valor-essence">"O nós vem antes do eu."</div>
                     <ul class="valor-list"><li>Evoluir juntos</li><li>Resolver junto, sem empurrar problema</li><li>Falar o que precisa, do jeito certo</li></ul>
                 </div>
                 <div class="valor-card card reveal">
-                    <div class="valor-number">03</div>
+                    <div class="valor-bignum">03</div>
+                    <div class="valor-icon"><svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3.2"/></svg></div>
                     <div class="valor-title">Inovar para Liderar</div>
                     <div class="valor-essence">"Sem apego ao 'sempre foi assim'."</div>
                     <ul class="valor-list"><li>Questionar o padrão</li><li>Testar rápido e aprender rápido</li><li>Transformar ideia em aplicação</li></ul>
                 </div>
                 <div class="valor-card card reveal">
-                    <div class="valor-number">04</div>
+                    <div class="valor-bignum">04</div>
+                    <div class="valor-icon"><svg viewBox="0 0 24 24"><path d="M6 21V4h11l-2.6 3.6L17 11H6"/></svg></div>
                     <div class="valor-title">Ser Dono</div>
                     <div class="valor-essence">"A Yandeh é minha, é sua, é de todos."</div>
                     <ul class="valor-list"><li>Antecipar e resolver problemas</li><li>Levar a solução, não só o problema</li><li>Começou, termina</li></ul>
                 </div>
                 <div class="valor-card card reveal">
-                    <div class="valor-number">05</div>
+                    <div class="valor-bignum">05</div>
+                    <div class="valor-icon"><svg viewBox="0 0 24 24"><path d="M4 20h16M6 20v-6M11 20V8M16 20v-9"/></svg></div>
                     <div class="valor-title">Melhor e Mais Longe com Dados</div>
                     <div class="valor-essence">"Dados vencem achismo. Sempre."</div>
                     <ul class="valor-list"><li>Checar fatos e dados, sempre</li><li>Foco em impacto</li><li>Transformar dado em ação</li></ul>
                 </div>
                 <div class="valor-card card reveal">
-                    <div class="valor-number">06</div>
+                    <div class="valor-bignum">06</div>
+                    <div class="valor-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.2"/><circle cx="12" cy="12" r="4.2"/><circle cx="12" cy="12" r="0.6"/></svg></div>
                     <div class="valor-title">Sede por Resultados</div>
                     <div class="valor-essence">"Garra, mas sem atalho."</div>
                     <ul class="valor-list"><li>Garra para fazer acontecer</li><li>Saber onde quer chegar</li><li>Ajustar rotas com foco no resultado</li></ul>
@@ -401,8 +426,8 @@
         </div>
     </section>
 
-    <!-- CENÁRIOS (b2) -->
-    <section class="cenarios section b2" id="cenarios">
+    <!-- CENÁRIOS -->
+    <section class="cenarios section" id="cenarios">
         <div class="run-container">
             <div class="section-label reveal">03 — RODE A CULTURA</div>
             <h2 class="section-title reveal">A cultura não se lê.<br><span class="highlight">Se vive.</span></h2>
@@ -462,8 +487,8 @@
         </div>
     </section>
 
-    <!-- DEBUGGER (b3) -->
-    <section class="debugger section b3" id="debugger">
+    <!-- DEBUGGER -->
+    <section class="debugger section zone-code" id="debugger">
         <div class="debugger-container">
             <div class="section-label reveal">04 — CULTURE DEBUGGER</div>
             <h2 class="section-title reveal">O que acontece quando<br><span class="highlight">o código quebra?</span></h2>
@@ -504,8 +529,8 @@
         </div>
     </section>
 
-    <!-- O CÓDIGO (b3) -->
-    <section class="codigo section b3" id="codigo">
+    <!-- O CÓDIGO -->
+    <section class="codigo section zone-code" id="codigo">
         <div class="codigo-container">
             <div class="section-label reveal">05 — A CULTURA VIRA CÓDIGO</div>
             <h2 class="section-title reveal">No fim, tudo isso<br><span class="highlight">roda como um sistema.</span></h2>
@@ -523,40 +548,35 @@
         </div>
     </section>
 
-    <!-- RITUAIS (b4) -->
-    <section class="rituais section b4" id="rituais">
+    <!-- RITUAIS -->
+    <section class="rituais section zone-code" id="rituais">
         <div class="rituais-container">
             <div class="section-label reveal">06 — CULTURE IN ACTION</div>
             <h2 class="section-title reveal">O código<br><span class="highlight">rodando na vida real.</span></h2>
             <p class="section-subtitle reveal">Rituais não são benefícios. São momentos onde a cultura se materializa.</p>
             <div class="action-grid">
                 <div class="action-card card reveal">
-                    <div class="action-emoji">☕</div>
-                    <div class="action-exe">OPEN_CHANNEL.exe</div>
+                    <div class="action-emoji">☕</div><div class="action-exe">OPEN_CHANNEL.exe</div>
                     <div class="action-title">Lucas + Você</div>
                     <div class="action-desc">Café da manhã com o CEO. Um papo leve, direto e humano que aproxima liderança e time.</div>
                 </div>
                 <div class="action-card card reveal">
-                    <div class="action-emoji">📊</div>
-                    <div class="action-exe">SYNC_ALL.exe</div>
+                    <div class="action-emoji">📊</div><div class="action-exe">SYNC_ALL.exe</div>
                     <div class="action-title">YH Junto</div>
                     <div class="action-desc">Encontro mensal de resultados e aprendizados. Todos conectados à estratégia, na mesma direção.</div>
                 </div>
                 <div class="action-card card reveal">
-                    <div class="action-emoji">🎉</div>
-                    <div class="action-exe">CONNECT.exe</div>
+                    <div class="action-emoji">🎉</div><div class="action-exe">CONNECT.exe</div>
                     <div class="action-title">Quarta Junto</div>
                     <div class="action-desc">Happy hour do mês no escritório. Vínculo, celebração e a leveza que também é nosso jeito.</div>
                 </div>
                 <div class="action-card card reveal">
-                    <div class="action-emoji">🌎</div>
-                    <div class="action-exe">SUMMIT.exe</div>
+                    <div class="action-emoji">🌎</div><div class="action-exe">SUMMIT.exe</div>
                     <div class="action-title">Yandeh Summit</div>
                     <div class="action-desc">Nosso encontro anual com todas as regiões. Propósito, estratégia e pertencimento.</div>
                 </div>
                 <div class="action-card card reveal">
-                    <div class="action-emoji">💬</div>
-                    <div class="action-exe">FEEDBACK.exe</div>
+                    <div class="action-emoji">💬</div><div class="action-exe">FEEDBACK.exe</div>
                     <div class="action-title">Feedback Day</div>
                     <div class="action-desc">O dia de pedir e dar feedback — aberto, construtivo e baseado em fatos.</div>
                 </div>
@@ -564,7 +584,7 @@
         </div>
     </section>
 
-    <!-- FINAL (b4) -->
+    <!-- FINAL -->
     <section class="final" id="final">
         <div class="final-terminal" id="final-terminal">
             <div class="final-line-term"><span class="term-prompt">$</span> <span class="term-status">compilar cultura</span> <span class="term-ok">[OK]</span></div>
@@ -587,26 +607,65 @@
     </footer>
 
     <script>
-        // ===== BOOT =====
-        const bootLines = document.querySelectorAll('.boot-line');
-        const bootProgress = document.querySelector('.boot-progress');
-        const bootProgressBar = document.getElementById('boot-progress-bar');
-        const bootEnter = document.getElementById('boot-enter');
-        const bootScreen = document.getElementById('boot-screen');
-        function runBootSequence() {
-            let delay = 300;
-            bootLines.forEach((line, i) => setTimeout(() => line.classList.add('visible'), delay + i * 400));
-            setTimeout(() => {
-                bootProgress.classList.add('visible');
-                let progress = 0;
-                const interval = setInterval(() => {
-                    progress += 2; bootProgressBar.style.width = progress + '%';
-                    if (progress >= 100) { clearInterval(interval); setTimeout(() => bootEnter.classList.add('visible'), 300); }
-                }, 30);
-            }, delay + bootLines.length * 400 + 200);
+        // ============ BIG BANG ============
+        const bigbang = document.getElementById('bigbang');
+        const bangCanvas = document.getElementById('bang-canvas');
+        const bctx = bangCanvas.getContext('2d');
+        const bangFlash = document.getElementById('bang-flash');
+        const bangContent = document.getElementById('bang-content');
+        const BRAND = ['#FF2E01', '#FFFFFF', '#e9e2d3', '#d3d3d3'];
+        let bangParts = [], bangStart = null, exploded = false, bangShownUI = false, bangRunning = true;
+        function sizeBang() { bangCanvas.width = window.innerWidth; bangCanvas.height = window.innerHeight; }
+        sizeBang(); window.addEventListener('resize', sizeBang);
+        function explode() {
+            exploded = true;
+            bangFlash.classList.add('fire');
+            const cx = bangCanvas.width / 2, cy = bangCanvas.height / 2;
+            for (let i = 0; i < 260; i++) {
+                const ang = Math.random() * Math.PI * 2;
+                const spd = Math.random() * 9 + 1.5;
+                bangParts.push({ x: cx, y: cy, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd,
+                    size: Math.random() * 2.4 + 0.6, color: BRAND[Math.floor(Math.random() * BRAND.length)], life: 1 });
+            }
         }
-        function enterSystem() {
-            bootScreen.classList.add('done');
+        function bangFrame(ts) {
+            if (bangStart === null) bangStart = ts;
+            const t = ts - bangStart;
+            bctx.clearRect(0, 0, bangCanvas.width, bangCanvas.height);
+            const cx = bangCanvas.width / 2, cy = bangCanvas.height / 2;
+            if (t < 900) {
+                // núcleo pulsando antes do estouro
+                const grow = t / 900;
+                const r = 2 + grow * 10;
+                const g = bctx.createRadialGradient(cx, cy, 0, cx, cy, r * 6);
+                g.addColorStop(0, 'rgba(255,255,255,0.95)');
+                g.addColorStop(0.4, 'rgba(255,46,1,0.6)');
+                g.addColorStop(1, 'rgba(255,46,1,0)');
+                bctx.fillStyle = g; bctx.beginPath(); bctx.arc(cx, cy, r * 6, 0, Math.PI * 2); bctx.fill();
+            } else {
+                if (!exploded) explode();
+                // onda de choque
+                const wt = t - 900;
+                if (wt < 900) {
+                    bctx.strokeStyle = `rgba(255,46,1,${0.5 * (1 - wt / 900)})`;
+                    bctx.lineWidth = 2; bctx.beginPath(); bctx.arc(cx, cy, wt * 1.1, 0, Math.PI * 2); bctx.stroke();
+                }
+                for (const p of bangParts) {
+                    p.x += p.vx; p.y += p.vy; p.vx *= 0.985; p.vy *= 0.985; p.life -= 0.006;
+                    if (p.life <= 0) continue;
+                    bctx.globalAlpha = Math.max(0, p.life);
+                    bctx.fillStyle = p.color; bctx.beginPath(); bctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); bctx.fill();
+                }
+                bctx.globalAlpha = 1;
+                if (t > 2000 && !bangShownUI) { bangShownUI = true; bangContent.classList.add('show'); }
+            }
+            if (bangRunning) requestAnimationFrame(bangFrame);
+        }
+        requestAnimationFrame(bangFrame);
+
+        function enterSite() {
+            bangRunning = false;
+            bigbang.classList.add('done');
             document.body.style.overflow = 'auto';
             setTimeout(() => {
                 document.getElementById('hero-badge').classList.add('visible');
@@ -617,9 +676,8 @@
             }, 400);
         }
         document.body.style.overflow = 'hidden';
-        setTimeout(runBootSequence, 500);
 
-        // ===== NAV / INTERAÇÕES =====
+        // ============ INTERAÇÕES ============
         function scrollToSection(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
         function selectOption(btn, responseId) {
             const card = btn.closest('.scenario-card');
@@ -636,12 +694,29 @@
             const r = document.getElementById(responseId); if (r) r.classList.add('visible');
         }
 
-        // ===== REVEAL =====
+        // ============ REVEAL ============
         const revealObserver = new IntersectionObserver((entries) => {
             entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
         }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
         document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
+        // ===== TÍTULOS SE FORMANDO (decode estilo matrix) =====
+        const DGLYPH = '01{}<>[]/=;+*&|%$#ƒλ';
+        function scrambleTextNode(node) {
+            const orig = node.nodeValue, len = orig.length; let f = 0; const total = 22;
+            (function tick() {
+                let out = ''; const rev = Math.floor((f / total) * len);
+                for (let i = 0; i < len; i++) out += (orig[i] === ' ' || i < rev) ? orig[i] : DGLYPH[Math.floor(Math.random() * DGLYPH.length)];
+                node.nodeValue = out; f++;
+                if (f <= total) requestAnimationFrame(tick); else node.nodeValue = orig;
+            })();
+        }
+        function scrambleEl(el) {
+            if (el.dataset.scr) return; el.dataset.scr = '1';
+            (function walk(n) { n.childNodes.forEach(c => { if (c.nodeType === 3 && c.nodeValue.trim()) scrambleTextNode(c); else if (c.nodeType === 1) walk(c); }); })(el);
+        }
+        const titleObs = new IntersectionObserver((es) => { es.forEach(e => { if (e.isIntersecting) { scrambleEl(e.target); titleObs.unobserve(e.target); } }); }, { threshold: 0.35 });
+        document.querySelectorAll('.section-title').forEach(t => titleObs.observe(t));
         const cardObserver = new IntersectionObserver((entries) => {
             entries.forEach(e => {
                 if (e.isIntersecting) {
@@ -651,69 +726,168 @@
             });
         }, { threshold: 0.1 });
         document.querySelectorAll('.valores-grid, .action-grid, .code-block, .origem-path').forEach(el => cardObserver.observe(el));
-
-        // ===== FINAL TERMINAL =====
         const finalTermLines = document.querySelectorAll('.final-line-term');
-        const finalTerminalObserver = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) { finalTermLines.forEach((l, i) => setTimeout(() => l.classList.add('visible'), i * 350)); finalTerminalObserver.disconnect(); } });
+        const ftObs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { finalTermLines.forEach((l, i) => setTimeout(() => l.classList.add('visible'), i * 350)); ftObs.disconnect(); } });
         }, { threshold: 0.4 });
-        const finalTerminal = document.getElementById('final-terminal');
-        if (finalTerminal) finalTerminalObserver.observe(finalTerminal);
+        const ft = document.getElementById('final-terminal'); if (ft) ftObs.observe(ft);
 
-        // ===== SCROLL INDICATOR =====
-        const sections = ['hero', 'origem', 'valores', 'cenarios', 'debugger', 'codigo', 'rituais', 'final'];
+        const sections = ['hero','origem','valores','cenarios','debugger','codigo','rituais','final'];
         const dots = document.querySelectorAll('.scroll-dot');
-        const sectionObserver = new IntersectionObserver((entries) => {
+        const sObs = new IntersectionObserver((entries) => {
             entries.forEach(e => { if (e.isIntersecting) dots.forEach(d => d.classList.toggle('active', d.dataset.section === e.target.id)); });
         }, { threshold: 0.5 });
-        sections.forEach(id => { const s = document.getElementById(id); if (s) sectionObserver.observe(s); });
+        sections.forEach(id => { const s = document.getElementById(id); if (s) sObs.observe(s); });
         dots.forEach(d => d.addEventListener('click', () => scrollToSection(d.dataset.section)));
 
-        // ===== PARTICLES (rede de código) =====
-        const canvas = document.getElementById('particles-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-        class Particle {
-            constructor() { this.reset(); }
-            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 1.5 + 0.5; this.speedX = (Math.random() - 0.5) * 0.3; this.speedY = (Math.random() - 0.5) * 0.3; this.opacity = Math.random() * 0.3 + 0.1; }
-            update() { this.x += this.speedX; this.y += this.speedY; if (this.x < 0 || this.x > canvas.width) this.speedX *= -1; if (this.y < 0 || this.y > canvas.height) this.speedY *= -1; }
-            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(255,255,255,${this.opacity})`; ctx.fill(); }
-        }
-        for (let i = 0; i < 60; i++) particles.push(new Particle());
-        function drawConnections() {
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx*dx+dy*dy);
-                    if (dist < 150) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(255,70,38,${0.06 * (1 - dist/150)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
-                }
+        // ============ ESTRELAS ============
+        const starsCanvas = document.getElementById('stars-canvas');
+        const sctx = starsCanvas.getContext('2d');
+        let stars = [], shootStars = [], mx = 0, my = 0;
+        function sizeStars() { starsCanvas.width = window.innerWidth; starsCanvas.height = window.innerHeight; }
+        function initStars() {
+            stars = [];
+            const n = Math.min(760, Math.floor(window.innerWidth * window.innerHeight / 2200));
+            for (let i = 0; i < n; i++) {
+                stars.push({ x: Math.random() - 0.5, y: Math.random() - 0.5, z0: Math.random(),
+                    tw: Math.random() * Math.PI * 2, tws: Math.random() * 0.04 + 0.005, warm: Math.random() < 0.08 });
             }
         }
-        function animateParticles() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); drawConnections(); requestAnimationFrame(animateParticles); }
-        animateParticles();
-        document.addEventListener('mousemove', (e) => {
-            particles.forEach(p => { const dx = p.x - e.clientX, dy = p.y - e.clientY, dist = Math.sqrt(dx*dx+dy*dy); if (dist < 150) { p.x += dx*0.01; p.y += dy*0.01; } });
-        });
+        sizeStars(); initStars();
+        window.addEventListener('resize', () => { sizeStars(); initStars(); });
+        window.addEventListener('mousemove', (e) => { mx = e.clientX / window.innerWidth - 0.5; my = e.clientY / window.innerHeight - 0.5; }, { passive: true });
+        function animStars(ts) {
+            const W = starsCanvas.width, H = starsCanvas.height, cx = W / 2, cy = H / 2;
+            sctx.clearRect(0, 0, W, H);
+            if (spaceOpacity > 0.01) {
+                const travel = window.scrollY * 0.00055 + (ts || 0) * 0.000012; // scroll = viajar mais fundo
+                for (const s of stars) {
+                    let z = (s.z0 - travel) % 1; if (z <= 0) z += 1;
+                    const persp = 0.9 / z, near = 1 - z;
+                    const px = cx + s.x * W * persp + mx * 130 * near;
+                    const py = cy + s.y * H * persp + my * 130 * near;
+                    if (px < -30 || px > W + 30 || py < -30 || py > H + 30) continue;
+                    s.tw += s.tws;
+                    const size = Math.min(3.4, 0.35 + near * 3.2);
+                    const a = (0.12 + near * 0.88) * (0.7 + Math.sin(s.tw) * 0.3) * spaceOpacity;
+                    if (near > 0.72) { sctx.shadowBlur = 6; sctx.shadowColor = 'rgba(255,255,255,0.85)'; }
+                    sctx.beginPath(); sctx.arc(px, py, size, 0, Math.PI * 2);
+                    sctx.fillStyle = s.warm ? `rgba(233,226,211,${a})` : `rgba(255,255,255,${a})`;
+                    sctx.fill();
+                    if (near > 0.72) sctx.shadowBlur = 0;
+                }
+                if (Math.random() < 0.01 * spaceOpacity) {
+                    const ang = Math.PI * (0.12 + Math.random() * 0.24), sp = Math.random() * 7 + 9;
+                    shootStars.push({ x: Math.random() * W, y: Math.random() * H * 0.5, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, len: Math.random() * 90 + 70, life: 1 });
+                }
+                for (let i = shootStars.length - 1; i >= 0; i--) {
+                    const sh = shootStars[i]; sh.x += sh.vx; sh.y += sh.vy; sh.life -= 0.014;
+                    const nn = Math.hypot(sh.vx, sh.vy) || 1, gx = sh.x - (sh.vx / nn) * sh.len, gy = sh.y - (sh.vy / nn) * sh.len;
+                    const grad = sctx.createLinearGradient(sh.x, sh.y, gx, gy);
+                    grad.addColorStop(0, `rgba(255,255,255,${Math.max(0, sh.life) * spaceOpacity})`); grad.addColorStop(1, 'rgba(255,255,255,0)');
+                    sctx.strokeStyle = grad; sctx.lineWidth = 1.6; sctx.beginPath(); sctx.moveTo(sh.x, sh.y); sctx.lineTo(gx, gy); sctx.stroke();
+                    if (sh.life <= 0 || sh.x > W + 120 || sh.y > H + 120) shootStars.splice(i, 1);
+                }
+            }
+            requestAnimationFrame(animStars);
+        }
+        requestAnimationFrame(animStars);
 
-        // ===== SCROLL: mais bruto conforme desce =====
-        const scanlines = document.getElementById('scanlines');
-        const grain = document.getElementById('grain');
-        function updateBrut() {
+        // ============ DETRITOS -> CÓDIGO ============
+        const debrisCanvas = document.getElementById('debris-canvas');
+        const dctx = debrisCanvas.getContext('2d');
+        const GLYPHS = ['{', '}', '<', '>', ';', '01', '=>', '[]', 'fn', '//', '()', '||', '&&', '01', '10', '::'];
+        let scrollP = 0, orbs = [], columns = [];
+        const MGLYPH = ['0','1','{','}','<','>',';','/','=','[',']','ƒ','+','*','·',':'];
+        function sizeDebris() { debrisCanvas.width = window.innerWidth; debrisCanvas.height = window.innerHeight; initColumns(); }
+        function initOrbs() {
+            orbs = []; const N = 7;
+            for (let i = 0; i < N; i++) {
+                orbs.push({ ang: (i / N) * Math.PI * 2, rad: 90 + Math.random() * 150, spin: (Math.random() * 0.4 + 0.2) * (Math.random() < 0.5 ? 1 : -1),
+                    size: Math.random() * 9 + 7, drift: Math.random() * 0.6 + 0.7, sway: Math.random() * 90 - 45 });
+            }
+        }
+        function initColumns() {
+            columns = []; const step = 22;
+            for (let x = 10; x <= debrisCanvas.width; x += step) columns.push({ x, y: Math.random() * debrisCanvas.height, speed: Math.random() * 2.4 + 1.3, len: Math.floor(Math.random() * 11 + 6) });
+        }
+        initOrbs(); sizeDebris();
+        window.addEventListener('resize', () => { sizeDebris(); initOrbs(); });
+        function animDebris() {
+            dctx.clearRect(0, 0, debrisCanvas.width, debrisCanvas.height);
+            const p = scrollP;
+            // planetinhas se soltando da órbita do hero rumo a valores
+            const release = Math.min(1, Math.max(0, (p - 0.06) / 0.22));
+            const orbA = Math.max(0, 1 - Math.max(0, (p - 0.20) / 0.14));
+            if (orbA > 0.01) {
+                const cx = debrisCanvas.width / 2, cyt = debrisCanvas.height * 0.46;
+                for (const o of orbs) {
+                    o.ang += o.spin * 0.004;
+                    const x = cx + Math.cos(o.ang) * o.rad + o.sway * release;
+                    const y = cyt + Math.sin(o.ang) * o.rad * 0.6 + release * debrisCanvas.height * 0.95 * o.drift;
+                    const g = dctx.createRadialGradient(x - o.size * 0.3, y - o.size * 0.3, 0, x, y, o.size);
+                    g.addColorStop(0, `rgba(130,130,130,${orbA})`); g.addColorStop(0.7, `rgba(45,45,45,${orbA})`); g.addColorStop(1, `rgba(12,12,12,${orbA * 0.6})`);
+                    dctx.beginPath(); dctx.arc(x, y, o.size, 0, Math.PI * 2); dctx.fillStyle = g; dctx.fill();
+                    dctx.strokeStyle = `rgba(255,46,1,${orbA * 0.3})`; dctx.lineWidth = 1; dctx.stroke();
+                }
+            }
+            // matrix sutil, intensifica de valores pra baixo
+            const mA = Math.min(0.42, Math.max(0, (p - 0.18) / 0.3));
+            if (mA > 0.01) {
+                dctx.font = "13px 'JetBrains Mono', monospace"; dctx.textAlign = 'center';
+                for (const c of columns) {
+                    c.y += c.speed;
+                    if (c.y - c.len * 16 > debrisCanvas.height) { c.y = -Math.random() * 220; c.speed = Math.random() * 2.4 + 1.3; c.len = Math.floor(Math.random() * 11 + 6); }
+                    for (let k = 0; k < c.len; k++) {
+                        const gy = c.y - k * 16;
+                        if (gy < -16 || gy > debrisCanvas.height + 16) continue;
+                        const ch = MGLYPH[Math.floor(Math.random() * MGLYPH.length)];
+                        if (k === 0) dctx.fillStyle = `rgba(255,255,255,${mA})`;
+                        else if (k === 1) dctx.fillStyle = `rgba(255,46,1,${mA * 0.8})`;
+                        else dctx.fillStyle = `rgba(233,226,211,${mA * (1 - k / c.len) * 0.5})`;
+                        dctx.fillText(ch, c.x, gy);
+                    }
+                }
+            }
+            requestAnimationFrame(animDebris);
+        }
+        animDebris();
+
+        // ============ SCROLL: galáxia -> detritos -> código ============
+        const spaceEl = document.getElementById('space');
+        const vignetteEl = document.getElementById('vignette');
+        let spaceOpacity = 1, codeness = 0;
+        function updateScroll() {
             const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
             const p = window.scrollY / max;
-            // rawness começa aos 30% e chega ao máximo aos 95%
-            const brut = Math.min(1, Math.max(0, (p - 0.30) / 0.65));
-            document.documentElement.style.setProperty('--brut', brut.toFixed(3));
-            scanlines.style.opacity = (brut * 0.35).toFixed(3);
-            grain.style.opacity = (brut * 0.5).toFixed(3);
+            scrollP = p;
+            // estrelas persistem na viagem; só desaparecem no último trecho
+            spaceOpacity = Math.min(1, Math.max(0.15, 1 - (p - 0.86) / 0.14));
+            codeness = Math.min(1, Math.max(0, (p - 0.15) / 0.65));           // detrito vira código
+            spaceEl.style.opacity = (spaceOpacity * 0.9).toFixed(3);
+            vignetteEl.style.opacity = Math.min(0.9, p * 1.05).toFixed(3);    // fecha = mais profundo/íntimo
             const nav = document.getElementById('nav-bar');
-            if (window.scrollY > 100) { nav.style.background = 'rgba(22,23,26,0.95)'; nav.style.backdropFilter = 'blur(10px)'; }
-            else { nav.style.background = 'linear-gradient(to bottom, rgba(22,23,26,0.95), transparent)'; nav.style.backdropFilter = 'none'; }
+            if (window.scrollY > 100) { nav.style.background = 'rgba(10,13,19,0.92)'; nav.style.backdropFilter = 'blur(10px)'; }
+            else { nav.style.background = 'linear-gradient(to bottom, rgba(10,13,19,0.9), transparent)'; nav.style.backdropFilter = 'none'; }
         }
-        window.addEventListener('scroll', updateBrut, { passive: true });
-        updateBrut();
+        window.addEventListener('scroll', updateScroll, { passive: true });
+        updateScroll();
+
+        // ===== INTERATIVIDADE (tilt 3D + parallax) =====
+        document.querySelectorAll('.valor-card, .action-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const r = card.getBoundingClientRect();
+                const rx = (((e.clientY - r.top) / r.height) - 0.5) * -9;
+                const ry = (((e.clientX - r.left) / r.width) - 0.5) * 9;
+                card.style.transform = `perspective(700px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-6px)`;
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+        });
+        const heroOrbitEl = document.querySelector('.hero-orbit');
+        if (heroOrbitEl) window.addEventListener('mousemove', (e) => {
+            const ox = (e.clientX / window.innerWidth - 0.5) * 44, oy = (e.clientY / window.innerHeight - 0.5) * 44;
+            heroOrbitEl.style.transform = `translate(calc(-50% + ${ox.toFixed(1)}px), calc(-50% + ${oy.toFixed(1)}px))`;
+        }, { passive: true });
     </script>
 </body>
 </html>
