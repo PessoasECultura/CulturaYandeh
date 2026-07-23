@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YANDEH.OS — Como é ser Yandeco?</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* base código + vermelho da marca */
+            --grafite: #16171a;
+            --preto: #0a0a0a;
+            --branco: #FFFFFF;
+            --cinza-claro: #BABCBD;
+            --cinza-medio: #8a8f96;
+            --cinza-escuro: #5c636c;
+            --osso: #EAEAEA;
+            --red-line: #FF4626;
+            --red-line-dim: rgba(255, 70, 38, 0.15);
+            --red-line-glow: rgba(255, 70, 38, 0.4);
+            --brut: 0; /* 0 = clean (topo) · 1 = bruto (base) */
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--grafite);
+            color: var(--branco);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+        ::selection { background: var(--red-line); color: var(--branco); }
+
+        /* ===== BOOT ===== */
+        #boot-screen {
+            position: fixed; inset: 0; background: var(--grafite); z-index: 9999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+        #boot-screen.done { opacity: 0; visibility: hidden; pointer-events: none; }
+        .boot-logo { font-family: 'JetBrains Mono', monospace; font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 700; letter-spacing: 0.15em; margin-bottom: 3rem; }
+        .boot-logo .yandeh { color: var(--branco); }
+        .boot-logo .os { color: var(--red-line); animation: pulse-red 2s ease-in-out infinite; }
+        @keyframes pulse-red { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .boot-terminal { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.9rem); color: var(--cinza-claro); width: min(90%, 500px); text-align: left; }
+        .boot-line { opacity: 0; transform: translateY(8px); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.6rem; }
+        .boot-line.visible { opacity: 1; transform: translateY(0); transition: all 0.4s ease; }
+        .boot-prompt { color: var(--red-line); font-weight: 600; }
+        .boot-status { color: var(--osso); }
+        .boot-ok { color: #4ade80; font-weight: 600; }
+        .boot-progress { width: min(90%, 400px); height: 2px; background: rgba(255,255,255,0.08); margin-top: 2rem; overflow: hidden; opacity: 0; transition: opacity 0.3s ease; }
+        .boot-progress.visible { opacity: 1; }
+        .boot-progress-bar { height: 100%; width: 0%; background: var(--red-line); transition: width 0.1s linear; }
+        .boot-enter { margin-top: 2.5rem; padding: 1rem 3rem; border: 1px solid var(--red-line); background: transparent; color: var(--red-line); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase; cursor: pointer; opacity: 0; transform: translateY(10px); transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .boot-enter.visible { opacity: 1; transform: translateY(0); }
+        .boot-enter:hover { background: var(--red-line); color: var(--branco); box-shadow: 0 0 30px var(--red-line-glow); }
+
+        /* ===== CANVAS / OVERLAYS ===== */
+        #particles-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.35; }
+        /* texturas "brutas" que intensificam no scroll */
+        #scanlines {
+            position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.5) 3px);
+        }
+        #grain {
+            position: fixed; inset: 0; z-index: 4; pointer-events: none; opacity: 0; mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ===== NAV ===== */
+        .nav-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(to bottom, rgba(22,23,26,0.95), transparent); opacity: 0; transform: translateY(-20px); transition: all 0.6s ease; }
+        .nav-bar.visible { opacity: 1; transform: translateY(0); }
+        .nav-logo { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 700; letter-spacing: 0.2em; }
+        .nav-logo span { color: var(--red-line); }
+        .nav-status { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cinza-escuro); display: flex; align-items: center; gap: 0.5rem; }
+        .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--red-line); animation: blink 2s ease-in-out infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* ===== SECTIONS + NÍVEIS DE BRUTALISMO ===== */
+        /* vars default (clean) — cada nível endurece */
+        .section {
+            position: relative; z-index: 2; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; padding: 11rem 2rem;
+            --card-radius: 6px;
+            --card-border: 1px solid rgba(255,255,255,0.1);
+            --card-bg: rgba(255,255,255,0.03);
+            --title-font: 'Space Grotesk', sans-serif;
+            --title-spacing: -0.01em;
+            --title-transform: none;
+        }
+        .b2 { --card-radius: 3px; --card-border: 1px solid rgba(255,255,255,0.18); --card-bg: rgba(255,255,255,0.02); }
+        .b3 {
+            --card-radius: 0px; --card-border: 1px solid rgba(255,70,38,0.45); --card-bg: rgba(0,0,0,0.35);
+            --title-font: 'JetBrains Mono', monospace; --title-spacing: 0; --title-transform: uppercase;
+        }
+        .b4 {
+            --card-radius: 0px; --card-border: 2px solid var(--red-line); --card-bg: var(--preto);
+            --title-font: 'JetBrains Mono', monospace; --title-spacing: 0; --title-transform: uppercase;
+        }
+        .b3, .b4 { background: linear-gradient(180deg, rgba(0,0,0,0.3), var(--preto)); }
+
+        .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--cinza-escuro); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 1rem; }
+        .section-label::before { content: ''; width: 30px; height: 1px; background: var(--red-line); }
+        .b3 .section-label, .b4 .section-label { color: var(--red-line); }
+        .b4 .section-label::before { content: '>>'; width: auto; height: auto; background: none; color: var(--red-line); font-weight: 700; }
+        .section-title { font-family: var(--title-font); font-size: clamp(2.4rem, 6vw, 5rem); font-weight: 700; line-height: 1.12; margin-bottom: 2.75rem; max-width: 840px; letter-spacing: var(--title-spacing); text-transform: var(--title-transform); }
+        .section-title .highlight { color: var(--osso); }
+        .b3 .section-title .highlight, .b4 .section-title .highlight { color: var(--red-line); }
+        .b4 .section-title { animation: brut-flicker 5s steps(1) infinite; }
+        @keyframes brut-flicker { 0%, 96%, 100% { text-shadow: none; } 97% { text-shadow: 2px 0 var(--red-line), -2px 0 #00e0d0; } 98% { text-shadow: -2px 0 var(--red-line), 2px 0 #00e0d0; } }
+        .section-subtitle { font-size: clamp(1.05rem, 2.2vw, 1.45rem); color: var(--cinza-claro); max-width: 640px; line-height: 1.8; }
+        .b3 .section-subtitle, .b4 .section-subtitle { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.85rem, 1.8vw, 1.05rem); line-height: 1.7; }
+
+        /* card genérico dirigido pelas vars do nível */
+        .card { background: var(--card-bg); border: var(--card-border); border-radius: var(--card-radius); transition: all 0.4s ease; }
+
+        /* ===== HERO (clean) ===== */
+        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 2rem; position: relative; z-index: 2; }
+        .hero-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--red-line); border: 1px solid rgba(255,70,38,0.3); padding: 0.5rem 1.5rem; margin-bottom: 2rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease 0.2s; }
+        .hero-badge.visible { opacity: 1; transform: translateY(0); }
+        .hero-title { font-size: clamp(2.5rem, 8vw, 6.5rem); font-weight: 700; line-height: 1; margin-bottom: 1.8rem; letter-spacing: -0.02em; }
+        .hero-title .line1 { display: block; opacity: 0; transform: translateY(40px); transition: all 1s ease 0.4s; }
+        .hero-title .line2 { display: block; color: var(--osso); opacity: 0; transform: translateY(40px); transition: all 1s ease 0.6s; }
+        .hero-title.visible .line1, .hero-title.visible .line2 { opacity: 1; transform: translateY(0); }
+        .hero-subtitle { font-size: clamp(1rem, 2vw, 1.3rem); color: var(--cinza-claro); max-width: 560px; margin-bottom: 3rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease 0.8s; }
+        .hero-subtitle.visible { opacity: 1; transform: translateY(0); }
+        .hero-scroll { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; transition: opacity 0.8s ease 1.4s; }
+        .hero-scroll.visible { opacity: 1; }
+        .hero-scroll-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--cinza-escuro); }
+        .hero-scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--red-line), transparent); animation: scroll-pulse 2s ease-in-out infinite; }
+        @keyframes scroll-pulse { 0%, 100% { opacity: 0.3; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(1.3); } }
+
+        /* ===== ORIGEM ===== */
+        .origem-container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        .origem-header { text-align: center; margin-bottom: 5rem; }
+        .origem-header .section-label { justify-content: center; }
+        .origem-header .section-title { margin: 0 auto 1.5rem; }
+        .origem-header .section-subtitle { margin: 0 auto; }
+        .origem-path { display: grid; grid-template-columns: 1fr 60px 1fr; align-items: stretch; }
+        @media (max-width: 768px) { .origem-path { grid-template-columns: 1fr; gap: 2rem; } }
+        .waypoint { padding: 2.75rem; opacity: 0; transform: translateY(30px); transition: all 0.9s cubic-bezier(0.16,1,0.3,1); }
+        .waypoint.visible { opacity: 1; transform: translateY(0); }
+        .waypoint-year { font-family: 'JetBrains Mono', monospace; font-size: 1.3rem; font-weight: 600; color: var(--red-line); letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+        .waypoint-tag { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--cinza-escuro); margin-bottom: 1.5rem; }
+        .waypoint-text { font-size: 1rem; color: var(--cinza-claro); line-height: 1.7; }
+        .waypoint-text strong { color: var(--branco); font-weight: 600; }
+        .path-line { position: relative; display: flex; align-items: center; justify-content: center; }
+        .path-line::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: linear-gradient(90deg, var(--red-line), rgba(255,70,38,0.2)); }
+        .path-line::after { content: '→'; position: relative; color: var(--red-line); font-family: 'JetBrains Mono', monospace; }
+        @media (max-width: 768px) { .path-line::before { left: 50%; right: auto; top: 0; bottom: 0; width: 1px; height: 100%; background: linear-gradient(180deg, var(--red-line), rgba(255,70,38,0.2)); } .path-line::after { content: '↓'; } }
+        .origem-close { text-align: center; margin-top: 4rem; font-size: clamp(1.1rem, 2.5vw, 1.6rem); font-weight: 300; color: var(--osso); opacity: 0; transform: translateY(20px); transition: all 0.9s ease; }
+        .origem-close.visible { opacity: 1; transform: translateY(0); }
+        .origem-close strong { color: var(--branco); font-weight: 600; }
+
+        /* ===== VALORES ===== */
+        .valores-container { max-width: 1200px; margin: 0 auto; width: 100%; }
+        .valores-header { text-align: center; }
+        .valores-header .section-label { justify-content: center; }
+        .valores-header .section-title { margin: 0 auto 1.5rem; }
+        .valores-header .section-subtitle { margin: 0 auto; }
+        .valores-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 5rem; }
+        @media (max-width: 900px) { .valores-grid { grid-template-columns: 1fr; } }
+        .valor-card { padding: 2.5rem; position: relative; overflow: hidden; opacity: 0; transform: translateY(30px); }
+        .valor-card.visible { opacity: 1; transform: translateY(0); }
+        .valor-card:hover { border-color: rgba(255,70,38,0.4); transform: translateY(-4px); }
+        .valor-number { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--red-line); margin-bottom: 1rem; }
+        .valor-title { font-size: 1.35rem; font-weight: 600; margin-bottom: 0.8rem; color: var(--branco); }
+        .valor-essence { font-size: 0.95rem; color: var(--osso); line-height: 1.6; margin-bottom: 1.6rem; font-style: italic; }
+        .valor-list { list-style: none; }
+        .valor-list li { font-size: 0.9rem; color: var(--cinza-claro); margin-bottom: 0.7rem; padding-left: 1.3rem; position: relative; line-height: 1.5; }
+        .valor-list li::before { content: '→'; position: absolute; left: 0; color: var(--red-line); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+
+        /* ===== CENÁRIOS ===== */
+        .run-container { max-width: 900px; margin: 0 auto; width: 100%; }
+        .scenario-card { padding: 3rem; margin-bottom: 2.5rem; position: relative; opacity: 0; transform: translateY(30px); }
+        .scenario-card.visible { opacity: 1; transform: translateY(0); }
+        .scenario-number { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--red-line); margin-bottom: 1rem; }
+        .scenario-question { font-size: clamp(1.1rem, 2.5vw, 1.5rem); font-weight: 600; margin-bottom: 2rem; line-height: 1.4; color: var(--branco); }
+        .scenario-options { display: flex; flex-direction: column; gap: 0.8rem; }
+        .scenario-btn { padding: 1.2rem 1.5rem; background: transparent; border: 1px solid rgba(255,255,255,0.1); color: var(--cinza-claro); font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; text-align: left; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .scenario-btn:hover { border-color: var(--cinza-claro); color: var(--branco); padding-left: 2rem; }
+        .scenario-btn.selected { border-color: var(--red-line); background: var(--red-line-dim); color: var(--branco); }
+        .scenario-btn.selected::before { content: '>'; position: absolute; left: 1rem; color: var(--red-line); font-family: 'JetBrains Mono', monospace; }
+        .scenario-response { margin-top: 1.5rem; padding: 1.5rem; background: rgba(255,70,38,0.05); border-left: 2px solid var(--red-line); font-size: 0.95rem; color: var(--osso); line-height: 1.7; display: none; }
+        .scenario-response.visible { display: block; animation: fade-in-up 0.5s ease; }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .scenario-response .response-title { font-weight: 600; color: var(--red-line); margin-bottom: 0.5rem; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+        /* ===== DEBUGGER (bruto) ===== */
+        .debugger-container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        .bug-card { padding: 2.5rem; margin-bottom: 1.5rem; position: relative; opacity: 0; transform: translateX(-30px); transition: all 0.6s ease; }
+        .bug-card.visible { opacity: 1; transform: translateX(0); }
+        .bug-card::before { content: 'BUG'; position: absolute; top: 0; right: 0; padding: 0.3rem 0.8rem; font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; background: var(--red-line); color: var(--branco); }
+        .bug-number { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--red-line); margin-bottom: 0.5rem; }
+        .bug-title { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--branco); }
+        .bug-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media (max-width: 600px) { .bug-options { grid-template-columns: 1fr; } }
+        .bug-btn { padding: 1rem 1.5rem; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: var(--cinza-claro); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; cursor: pointer; transition: all 0.3s ease; text-align: left; }
+        .bug-btn:hover { border-color: var(--cinza-claro); color: var(--branco); }
+        .bug-btn.fix { border-color: var(--red-line); color: var(--branco); }
+        .bug-btn.fix:hover { background: var(--red-line-dim); }
+        .bug-response { margin-top: 1.5rem; padding: 1.2rem; background: rgba(74, 222, 128, 0.05); border-left: 2px solid #4ade80; font-size: 0.9rem; color: var(--osso); display: none; font-family: 'JetBrains Mono', monospace; }
+        .bug-response.visible { display: block; animation: fade-in-up 0.5s ease; }
+        .bug-response .status { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: #4ade80; margin-bottom: 0.3rem; }
+
+        /* ===== CÓDIGO (bruto) ===== */
+        .codigo-container { max-width: 1000px; margin: 0 auto; width: 100%; }
+        .code-block { font-family: 'JetBrains Mono', monospace; background: var(--preto); border: 1px solid rgba(255,70,38,0.45); padding: 3rem; margin-top: 4.5rem; position: relative; overflow: hidden; }
+        .code-block::before { content: 'yandeh.culture'; position: absolute; top: 0; right: 0; padding: 0.5rem 1rem; font-size: 0.6rem; color: var(--cinza-escuro); background: rgba(255,255,255,0.03); }
+        .code-line { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.2rem; opacity: 0; transform: translateX(-10px); transition: all 0.5s ease; }
+        .code-line.visible { opacity: 1; transform: translateX(0); }
+        .code-line-number { color: var(--cinza-escuro); font-size: 0.75rem; min-width: 25px; text-align: right; user-select: none; }
+        .code-keyword { color: var(--red-line); }
+        .code-function { color: var(--osso); }
+        .code-string { color: var(--cinza-claro); }
+        .code-comment { color: var(--cinza-escuro); font-style: italic; }
+        .code-variable { color: var(--branco); }
+        .code-operator { color: var(--cinza-medio); }
+
+        /* ===== RITUAIS (mais bruto) ===== */
+        .rituais-container { max-width: 1200px; margin: 0 auto; width: 100%; }
+        .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 5.5rem; }
+        @media (max-width: 900px) { .action-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 600px) { .action-grid { grid-template-columns: 1fr; } }
+        .action-card { padding: 2.5rem; position: relative; overflow: hidden; opacity: 0; transform: translateY(20px); }
+        .action-card.visible { opacity: 1; transform: translateY(0); }
+        .action-card:hover { border-color: var(--red-line); }
+        .action-emoji { font-size: 1.6rem; margin-bottom: 1rem; filter: grayscale(0.2); }
+        .action-exe { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; letter-spacing: 0.15em; color: var(--red-line); margin-bottom: 0.5rem; }
+        .action-title { font-family: 'JetBrains Mono', monospace; font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--branco); text-transform: uppercase; letter-spacing: 0.02em; }
+        .action-desc { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--cinza-claro); line-height: 1.6; }
+
+        /* ===== FINAL (máximo bruto) ===== */
+        .final { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 6rem 2rem; position: relative; z-index: 2; background: var(--preto); }
+        .final-terminal { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.7rem, 1.5vw, 0.9rem); color: var(--cinza-claro); width: min(90%, 460px); text-align: left; margin-bottom: 3.5rem; }
+        .final-line-term { opacity: 0; transform: translateY(8px); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; }
+        .final-line-term.visible { opacity: 1; transform: translateY(0); transition: all 0.4s ease; }
+        .term-prompt { color: var(--red-line); font-weight: 600; }
+        .term-status { color: var(--osso); }
+        .term-ok { color: #4ade80; font-weight: 600; }
+        .final-content { max-width: 700px; }
+        .final-line { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.95rem, 2.2vw, 1.25rem); color: var(--cinza-claro); margin-bottom: 1rem; opacity: 0; transform: translateY(20px); transition: all 0.8s ease; }
+        .final-line.visible { opacity: 1; transform: translateY(0); }
+        .final-line.highlight { font-family: 'JetBrains Mono', monospace; font-size: clamp(1.4rem, 4vw, 2.4rem); font-weight: 700; color: var(--branco); text-transform: uppercase; margin: 2rem 0; }
+        .final-line.welcome { font-family: 'JetBrains Mono', monospace; font-size: clamp(1rem, 3vw, 1.6rem); letter-spacing: 0.15em; color: var(--red-line); margin-top: 3rem; font-weight: 700; }
+        .final-line.welcome::after { content: '_'; animation: caret 1s steps(1) infinite; }
+        @keyframes caret { 50% { opacity: 0; } }
+        .final-divider { width: 60px; height: 2px; background: var(--red-line); margin: 2rem auto; opacity: 0; transition: opacity 0.8s ease; }
+        .final-divider.visible { opacity: 1; }
+
+        /* ===== FOOTER ===== */
+        .footer { padding: 3rem 2rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); background: var(--preto); position: relative; z-index: 2; }
+        .footer-text { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; color: var(--cinza-escuro); }
+
+        /* ===== REVEAL ===== */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        /* ===== SCROLL INDICATOR ===== */
+        .scroll-indicator { position: fixed; right: 2rem; top: 50%; transform: translateY(-50%); z-index: 50; display: flex; flex-direction: column; gap: 0.8rem; }
+        .scroll-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cinza-escuro); transition: all 0.3s ease; cursor: pointer; }
+        .scroll-dot.active { background: var(--red-line); transform: scale(1.5); }
+        @media (max-width: 768px) { .scroll-indicator { display: none; } }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .section { padding: 6rem 1.5rem; }
+            .nav-bar { padding: 1rem 1.5rem; }
+            .code-block { padding: 1.75rem; overflow-x: auto; }
+            .scenario-card, .bug-card, .valor-card, .action-card, .waypoint { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BOOT -->
+    <div id="boot-screen">
+        <div class="boot-logo"><span class="yandeh">YANDEH</span><span class="os">.OS</span></div>
+        <div class="boot-terminal">
+            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">init propósito</span> <span class="boot-ok">[OK]</span></div>
+            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">carregar pessoas</span> <span class="boot-ok">[CONECTADO]</span></div>
+            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">ativar dados</span> <span class="boot-ok">[ATIVO]</span></div>
+            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">montar cultura</span> <span class="boot-ok">[LOADED]</span></div>
+            <div class="boot-line"><span class="boot-prompt">$</span> <span class="boot-status">executar</span> <span class="boot-ok">[RUNNING...]</span></div>
+        </div>
+        <div class="boot-progress"><div class="boot-progress-bar" id="boot-progress-bar"></div></div>
+        <button class="boot-enter" id="boot-enter" onclick="enterSystem()">ENTER CULTURA</button>
+    </div>
+
+    <canvas id="particles-canvas"></canvas>
+    <div id="scanlines" aria-hidden="true"></div>
+    <div id="grain" aria-hidden="true"></div>
+
+    <!-- NAV -->
+    <nav class="nav-bar" id="nav-bar">
+        <div class="nav-logo">YANDEH<span>.OS</span></div>
+        <div class="nav-status"><span class="nav-dot"></span>SYSTEM ONLINE</div>
+    </nav>
+
+    <!-- SCROLL INDICATOR -->
+    <div class="scroll-indicator" id="scroll-indicator">
+        <div class="scroll-dot active" data-section="hero"></div>
+        <div class="scroll-dot" data-section="origem"></div>
+        <div class="scroll-dot" data-section="valores"></div>
+        <div class="scroll-dot" data-section="cenarios"></div>
+        <div class="scroll-dot" data-section="debugger"></div>
+        <div class="scroll-dot" data-section="codigo"></div>
+        <div class="scroll-dot" data-section="rituais"></div>
+        <div class="scroll-dot" data-section="final"></div>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-badge" id="hero-badge">PROPÓSITO</div>
+        <h1 class="hero-title" id="hero-title">
+            <span class="line1">Impulsionar os negócios</span>
+            <span class="line2">para o futuro.</span>
+        </h1>
+        <p class="hero-subtitle" id="hero-subtitle">
+            A gente se move pela vontade de mudar o mercado de consumo. A prosperidade está ao alcance de todos quando criamos conexões que realmente importam.
+        </p>
+        <div class="hero-scroll" id="hero-scroll">
+            <span class="hero-scroll-text">SCROLL</span>
+            <div class="hero-scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- ORIGEM (b1) -->
+    <section class="origem section b1" id="origem">
+        <div class="origem-container">
+            <div class="origem-header">
+                <div class="section-label reveal">01 — A ORIGEM</div>
+                <h2 class="section-title reveal">Tudo começou com<br><span class="highlight">uma inspiração.</span></h2>
+                <p class="section-subtitle reveal">Uma ideia lá atrás. Um ecossistema hoje. Entre os dois, uma visão que nunca mudou.</p>
+            </div>
+            <div class="origem-path">
+                <div class="waypoint card reveal">
+                    <div class="waypoint-year">1998</div>
+                    <div class="waypoint-tag">A CENTELHA</div>
+                    <div class="waypoint-text">Ainda na faculdade, Alfredo já falava em <strong>revolucionar o varejo com tecnologia</strong> — buscando três coisas ao mesmo tempo: inovação, impacto social positivo e resultado.</div>
+                </div>
+                <div class="path-line reveal"></div>
+                <div class="waypoint card reveal">
+                    <div class="waypoint-year">Hoje</div>
+                    <div class="waypoint-tag">O ECOSSISTEMA</div>
+                    <div class="waypoint-text">Um ecossistema digital que <strong>conecta indústria, distribuidor e varejo</strong>, movido a dados. CD próprio, logística, plataforma. A visão virou realidade.</div>
+                </div>
+            </div>
+            <div class="origem-close reveal">Do sonho ao sistema.<br><strong>Mas o que sustenta tudo isso não aparece no código.</strong></div>
+        </div>
+    </section>
+
+    <!-- VALORES (b2) -->
+    <section class="valores section b2" id="valores">
+        <div class="valores-container">
+            <div class="valores-header">
+                <div class="section-label reveal">02 — OS VALORES</div>
+                <h2 class="section-title reveal">Seis forças<br><span class="highlight">que nos movem.</span></h2>
+                <p class="section-subtitle reveal">Não são frases de parede. São comportamentos que a gente vive todo dia.</p>
+            </div>
+            <div class="valores-grid">
+                <div class="valor-card card reveal">
+                    <div class="valor-number">01</div>
+                    <div class="valor-title">Encantar o Cliente</div>
+                    <div class="valor-essence">"O cliente está no começo de toda decisão, não só no fim."</div>
+                    <ul class="valor-list"><li>Escutar para valer</li><li>Surpreender e fidelizar</li><li>Cuidar do começo ao fim</li></ul>
+                </div>
+                <div class="valor-card card reveal">
+                    <div class="valor-number">02</div>
+                    <div class="valor-title">Nós pela Yandeh</div>
+                    <div class="valor-essence">"O nós vem antes do eu."</div>
+                    <ul class="valor-list"><li>Evoluir juntos</li><li>Resolver junto, sem empurrar problema</li><li>Falar o que precisa, do jeito certo</li></ul>
+                </div>
+                <div class="valor-card card reveal">
+                    <div class="valor-number">03</div>
+                    <div class="valor-title">Inovar para Liderar</div>
+                    <div class="valor-essence">"Sem apego ao 'sempre foi assim'."</div>
+                    <ul class="valor-list"><li>Questionar o padrão</li><li>Testar rápido e aprender rápido</li><li>Transformar ideia em aplicação</li></ul>
+                </div>
+                <div class="valor-card card reveal">
+                    <div class="valor-number">04</div>
+                    <div class="valor-title">Ser Dono</div>
+                    <div class="valor-essence">"A Yandeh é minha, é sua, é de todos."</div>
+                    <ul class="valor-list"><li>Antecipar e resolver problemas</li><li>Levar a solução, não só o problema</li><li>Começou, termina</li></ul>
+                </div>
+                <div class="valor-card card reveal">
+                    <div class="valor-number">05</div>
+                    <div class="valor-title">Melhor e Mais Longe com Dados</div>
+                    <div class="valor-essence">"Dados vencem achismo. Sempre."</div>
+                    <ul class="valor-list"><li>Checar fatos e dados, sempre</li><li>Foco em impacto</li><li>Transformar dado em ação</li></ul>
+                </div>
+                <div class="valor-card card reveal">
+                    <div class="valor-number">06</div>
+                    <div class="valor-title">Sede por Resultados</div>
+                    <div class="valor-essence">"Garra, mas sem atalho."</div>
+                    <ul class="valor-list"><li>Garra para fazer acontecer</li><li>Saber onde quer chegar</li><li>Ajustar rotas com foco no resultado</li></ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CENÁRIOS (b2) -->
+    <section class="cenarios section b2" id="cenarios">
+        <div class="run-container">
+            <div class="section-label reveal">03 — RODE A CULTURA</div>
+            <h2 class="section-title reveal">A cultura não se lê.<br><span class="highlight">Se vive.</span></h2>
+            <p class="section-subtitle reveal">Escolha como você reagiria. Não existe resposta certa — existe o jeito Yandeh de pensar.</p>
+
+            <div class="scenario-card card reveal" style="margin-top:5rem;">
+                <div class="scenario-number">SCENARIO_001</div>
+                <div class="scenario-question">Você recebeu uma demanda de cliente. O que você faz?</div>
+                <div class="scenario-options">
+                    <button class="scenario-btn" onclick="selectOption(this, 'res1a')">Resolvo apenas minha parte do processo</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res1b')">Entendo o problema inteiro antes de agir</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res1c')">Passo para outra área e acompanho de longe</button>
+                </div>
+                <div class="scenario-response" id="res1a"><div class="response-title">Aqui não resolvemos pela metade.</div>Cuidamos do começo ao fim. O cliente está no começo de toda decisão, não só no final.</div>
+                <div class="scenario-response" id="res1b"><div class="response-title">Isso é Encantar o Cliente.</div>Escutamos para valer e agimos antes de reagir. Resolvemos a causa, não só o sintoma.</div>
+                <div class="scenario-response" id="res1c"><div class="response-title">Problema não tem dono. Tem responsabilidade compartilhada.</div>A gente não empurra. Assume junto e resolve até o fim.</div>
+            </div>
+
+            <div class="scenario-card card reveal">
+                <div class="scenario-number">SCENARIO_002</div>
+                <div class="scenario-question">Você tem uma ideia melhor que a do seu líder. O que você faz?</div>
+                <div class="scenario-options">
+                    <button class="scenario-btn" onclick="selectOption(this, 'res2a')">Fico na minha — não é meu lugar</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res2b')">Levo a ideia para discussão</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res2c')">Espero o momento certo, que nunca chega</button>
+                </div>
+                <div class="scenario-response" id="res2a"><div class="response-title">Aqui, a melhor ideia vence.</div>Não importa o cargo nem o tempo de casa. Importa o impacto que ela gera.</div>
+                <div class="scenario-response" id="res2b"><div class="response-title">Isso é Inovar para Liderar.</div>A melhor ideia vence. Questionamos o "sempre foi assim" e trazemos a ideia à mesa.</div>
+                <div class="scenario-response" id="res2c"><div class="response-title">O momento certo é agora.</div>A melhor ideia vence — mas só se ela for dita. Esperar não é estratégia.</div>
+            </div>
+
+            <div class="scenario-card card reveal">
+                <div class="scenario-number">SCENARIO_003</div>
+                <div class="scenario-question">Seu indicador não está entregando o resultado esperado. O que você faz?</div>
+                <div class="scenario-options">
+                    <button class="scenario-btn" onclick="selectOption(this, 'res3a')">Continuo igual — o resultado vai vir</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res3b')">Analiso os dados e mudo a abordagem</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res3c')">Peço mais tempo sem mudar nada</button>
+                </div>
+                <div class="scenario-response" id="res3a"><div class="response-title">Insistir no que não funciona não é garra. É teimosia.</div>Se não funciona, mudamos. Se funciona, escalamos.</div>
+                <div class="scenario-response" id="res3b"><div class="response-title">Isso é Sede por Resultados + Dados.</div>Decidimos com fatos, ajustamos a rota rápido e mantemos o foco no impacto.</div>
+                <div class="scenario-response" id="res3c"><div class="response-title">Dados não esperam. E nós também não.</div>Analisamos, aprendemos e ajustamos rápido.</div>
+            </div>
+
+            <div class="scenario-card card reveal">
+                <div class="scenario-number">SCENARIO_004</div>
+                <div class="scenario-question">Uma solução funciona para sua área, mas prejudica outra. O que você faz?</div>
+                <div class="scenario-options">
+                    <button class="scenario-btn" onclick="selectOption(this, 'res4a')">Sigo com a solução — minha área está OK</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res4b')">Olho o impacto na Yandeh como um todo</button>
+                    <button class="scenario-btn" onclick="selectOption(this, 'res4c')">Deixo a outra área se virar</button>
+                </div>
+                <div class="scenario-response" id="res4a"><div class="response-title">O nós vem antes do eu.</div>Agimos sempre para o melhor da empresa. A Yandeh é de todos.</div>
+                <div class="scenario-response" id="res4b"><div class="response-title">Isso é Nós pela Yandeh.</div>Olhamos o todo antes de concluir e assumimos o impacto nas decisões.</div>
+                <div class="scenario-response" id="res4c"><div class="response-title">A gente não transfere. Assume junto.</div>Problema não tem dono — tem responsabilidade compartilhada.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DEBUGGER (b3) -->
+    <section class="debugger section b3" id="debugger">
+        <div class="debugger-container">
+            <div class="section-label reveal">04 — CULTURE DEBUGGER</div>
+            <h2 class="section-title reveal">O que acontece quando<br><span class="highlight">o código quebra?</span></h2>
+            <p class="section-subtitle reveal">A cultura aparece quando as coisas dão errado. Escolha como debugar.</p>
+
+            <div class="bug-card card reveal" style="margin-top:5rem;">
+                <div class="bug-number">BUG #001</div>
+                <div class="bug-title">O resultado não veio.</div>
+                <div class="bug-options">
+                    <button class="bug-btn" onclick="debugBug(this, 'bug1a')">KEEP RUNNING — insistir no mesmo caminho</button>
+                    <button class="bug-btn fix" onclick="debugBug(this, 'bug1b')">CHANGE ROUTE — analisar dados e adaptar</button>
+                </div>
+                <div class="bug-response" id="bug1a"><div class="status">[WARNING] PATTERN DETECTED</div>Insistir no que não funciona não é garra. É teimosia. Se não funciona, mudamos.</div>
+                <div class="bug-response" id="bug1b"><div class="status">[FIXED] ROUTE UPDATED</div>Garra é saber mudar de rota. Analisamos, aprendemos e ajustamos rápido.</div>
+            </div>
+
+            <div class="bug-card card reveal">
+                <div class="bug-number">BUG #002</div>
+                <div class="bug-title">O problema não é seu.</div>
+                <div class="bug-options">
+                    <button class="bug-btn" onclick="debugBug(this, 'bug2a')">TRANSFER — passo para quem é da área</button>
+                    <button class="bug-btn fix" onclick="debugBug(this, 'bug2b')">OWN IT TOGETHER — assumo junto</button>
+                </div>
+                <div class="bug-response" id="bug2a"><div class="status">[ERROR] OWNERSHIP NOT FOUND</div>Problema não tem dono. Tem responsabilidade compartilhada. A gente não transfere.</div>
+                <div class="bug-response" id="bug2b"><div class="status">[FIXED] SHARED OWNERSHIP</div>Assumimos responsabilidades além do escopo. Ajudamos outras áreas para evoluir junto.</div>
+            </div>
+
+            <div class="bug-card card reveal">
+                <div class="bug-number">BUG #003</div>
+                <div class="bug-title">Você tem dados, mas eles não confirmam sua opinião.</div>
+                <div class="bug-options">
+                    <button class="bug-btn" onclick="debugBug(this, 'bug3a')">DEFEND OPINION — meu feeling é bom</button>
+                    <button class="bug-btn fix" onclick="debugBug(this, 'bug3b')">FOLLOW THE DATA — dados vencem opinião</button>
+                </div>
+                <div class="bug-response" id="bug3a"><div class="status">[ERROR] CONFIRMATION BIAS</div>Dados não são validação de opinião. São norte. Checamos fatos, sempre.</div>
+                <div class="bug-response" id="bug3b"><div class="status">[FIXED] DATA-DRIVEN</div>Decidimos com fatos, não com achismos. E transformamos dado em ação.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- O CÓDIGO (b3) -->
+    <section class="codigo section b3" id="codigo">
+        <div class="codigo-container">
+            <div class="section-label reveal">05 — A CULTURA VIRA CÓDIGO</div>
+            <h2 class="section-title reveal">No fim, tudo isso<br><span class="highlight">roda como um sistema.</span></h2>
+            <p class="section-subtitle reveal">Esses comandos não são abstrações. São comportamentos reais, todos os dias.</p>
+            <div class="code-block reveal">
+                <div class="code-line"><span class="code-line-number">01</span><span class="code-keyword">if</span> <span class="code-variable">problema</span><span class="code-operator">.</span><span class="code-function">existe</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-variable">dono</span> <span class="code-operator">=</span> <span class="code-string">"todos"</span> <span class="code-comment">// problema não tem dono</span></div>
+                <div class="code-line"><span class="code-line-number">02</span><span class="code-keyword">if</span> <span class="code-variable">dados</span><span class="code-operator">.</span><span class="code-function">existem</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-variable">decisao</span> <span class="code-operator">=</span> <span class="code-string">"fato"</span> <span class="code-comment">// não decidimos no achismo</span></div>
+                <div class="code-line"><span class="code-line-number">03</span><span class="code-keyword">if</span> <span class="code-variable">estrategia</span><span class="code-operator">.</span><span class="code-function">nao_funciona</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-function">mudar_rota</span><span class="code-operator">()</span> <span class="code-comment">// sem apego ao "sempre foi assim"</span></div>
+                <div class="code-line"><span class="code-line-number">04</span><span class="code-keyword">if</span> <span class="code-variable">cliente</span><span class="code-operator">.</span><span class="code-function">tem_dor</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-function">resolver_ate_o_fim</span><span class="code-operator">()</span> <span class="code-comment">// do começo ao fim</span></div>
+                <div class="code-line"><span class="code-line-number">05</span><span class="code-keyword">if</span> <span class="code-variable">ideia</span><span class="code-operator">.</span><span class="code-function">e_melhor</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-function">ouvir</span><span class="code-operator">(</span><span class="code-variable">ideia</span><span class="code-operator">)</span> <span class="code-comment">// vence a ideia, não o cargo</span></div>
+                <div class="code-line"><span class="code-line-number">06</span><span class="code-keyword">if</span> <span class="code-variable">area</span><span class="code-operator">.</span><span class="code-function">e_impactada</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-function">colaborar</span><span class="code-operator">()</span> <span class="code-comment">// o nós vem antes do eu</span></div>
+                <div class="code-line"><span class="code-line-number">07</span><span class="code-keyword">while</span> <span class="code-variable">resultado</span><span class="code-operator">.</span><span class="code-function">nao_veio</span><span class="code-operator">()</span> <span class="code-operator">→</span> <span class="code-function">adaptar</span><span class="code-operator">()</span> <span class="code-comment">// garra é mudar de rota</span></div>
+                <div class="code-line"><span class="code-line-number">08</span><span class="code-keyword">return</span> <span class="code-string">"jeito Yandeh de fazer"</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RITUAIS (b4) -->
+    <section class="rituais section b4" id="rituais">
+        <div class="rituais-container">
+            <div class="section-label reveal">06 — CULTURE IN ACTION</div>
+            <h2 class="section-title reveal">O código<br><span class="highlight">rodando na vida real.</span></h2>
+            <p class="section-subtitle reveal">Rituais não são benefícios. São momentos onde a cultura se materializa.</p>
+            <div class="action-grid">
+                <div class="action-card card reveal">
+                    <div class="action-emoji">☕</div>
+                    <div class="action-exe">OPEN_CHANNEL.exe</div>
+                    <div class="action-title">Lucas + Você</div>
+                    <div class="action-desc">Café da manhã com o CEO. Um papo leve, direto e humano que aproxima liderança e time.</div>
+                </div>
+                <div class="action-card card reveal">
+                    <div class="action-emoji">📊</div>
+                    <div class="action-exe">SYNC_ALL.exe</div>
+                    <div class="action-title">YH Junto</div>
+                    <div class="action-desc">Encontro mensal de resultados e aprendizados. Todos conectados à estratégia, na mesma direção.</div>
+                </div>
+                <div class="action-card card reveal">
+                    <div class="action-emoji">🎉</div>
+                    <div class="action-exe">CONNECT.exe</div>
+                    <div class="action-title">Quarta Junto</div>
+                    <div class="action-desc">Happy hour do mês no escritório. Vínculo, celebração e a leveza que também é nosso jeito.</div>
+                </div>
+                <div class="action-card card reveal">
+                    <div class="action-emoji">🌎</div>
+                    <div class="action-exe">SUMMIT.exe</div>
+                    <div class="action-title">Yandeh Summit</div>
+                    <div class="action-desc">Nosso encontro anual com todas as regiões. Propósito, estratégia e pertencimento.</div>
+                </div>
+                <div class="action-card card reveal">
+                    <div class="action-emoji">💬</div>
+                    <div class="action-exe">FEEDBACK.exe</div>
+                    <div class="action-title">Feedback Day</div>
+                    <div class="action-desc">O dia de pedir e dar feedback — aberto, construtivo e baseado em fatos.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL (b4) -->
+    <section class="final" id="final">
+        <div class="final-terminal" id="final-terminal">
+            <div class="final-line-term"><span class="term-prompt">$</span> <span class="term-status">compilar cultura</span> <span class="term-ok">[OK]</span></div>
+            <div class="final-line-term"><span class="term-prompt">$</span> <span class="term-status">carregar pessoas</span> <span class="term-ok">[CONECTADO]</span></div>
+            <div class="final-line-term"><span class="term-prompt">$</span> <span class="term-status">montar propósito</span> <span class="term-ok">[ATIVO]</span></div>
+            <div class="final-line-term"><span class="term-prompt">$</span> <span class="term-status">rodar cultura</span> <span class="term-ok">[SYSTEM ONLINE]</span></div>
+        </div>
+        <div class="final-content">
+            <div class="final-line reveal">Você pode aprender nossos produtos.</div>
+            <div class="final-line reveal">Pode aprender nossos processos.</div>
+            <div class="final-divider reveal"></div>
+            <div class="final-line reveal highlight">Mas o jeito como a gente trabalha?</div>
+            <div class="final-line reveal highlight">Isso você vive.</div>
+            <div class="final-line welcome reveal">BEM-VINDO À YANDEH</div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-text">YANDEH.OS — IMPULSIONANDO OS NEGÓCIOS PARA O FUTURO</div>
+    </footer>
+
+    <script>
+        // ===== BOOT =====
+        const bootLines = document.querySelectorAll('.boot-line');
+        const bootProgress = document.querySelector('.boot-progress');
+        const bootProgressBar = document.getElementById('boot-progress-bar');
+        const bootEnter = document.getElementById('boot-enter');
+        const bootScreen = document.getElementById('boot-screen');
+        function runBootSequence() {
+            let delay = 300;
+            bootLines.forEach((line, i) => setTimeout(() => line.classList.add('visible'), delay + i * 400));
+            setTimeout(() => {
+                bootProgress.classList.add('visible');
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += 2; bootProgressBar.style.width = progress + '%';
+                    if (progress >= 100) { clearInterval(interval); setTimeout(() => bootEnter.classList.add('visible'), 300); }
+                }, 30);
+            }, delay + bootLines.length * 400 + 200);
+        }
+        function enterSystem() {
+            bootScreen.classList.add('done');
+            document.body.style.overflow = 'auto';
+            setTimeout(() => {
+                document.getElementById('hero-badge').classList.add('visible');
+                document.getElementById('hero-title').classList.add('visible');
+                document.getElementById('hero-subtitle').classList.add('visible');
+                document.getElementById('hero-scroll').classList.add('visible');
+                document.getElementById('nav-bar').classList.add('visible');
+            }, 400);
+        }
+        document.body.style.overflow = 'hidden';
+        setTimeout(runBootSequence, 500);
+
+        // ===== NAV / INTERAÇÕES =====
+        function scrollToSection(id) { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth' }); }
+        function selectOption(btn, responseId) {
+            const card = btn.closest('.scenario-card');
+            card.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('selected'));
+            card.querySelectorAll('.scenario-response').forEach(r => r.classList.remove('visible'));
+            btn.classList.add('selected');
+            const r = document.getElementById(responseId); if (r) r.classList.add('visible');
+        }
+        function debugBug(btn, responseId) {
+            const card = btn.closest('.bug-card');
+            card.querySelectorAll('.bug-btn').forEach(b => b.classList.remove('selected'));
+            card.querySelectorAll('.bug-response').forEach(r => r.classList.remove('visible'));
+            btn.classList.add('selected');
+            const r = document.getElementById(responseId); if (r) r.classList.add('visible');
+        }
+
+        // ===== REVEAL =====
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        const cardObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.querySelectorAll('.valor-card, .action-card, .code-line, .waypoint').forEach((c, i) => setTimeout(() => c.classList.add('visible'), i * 100));
+                    e.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.valores-grid, .action-grid, .code-block, .origem-path').forEach(el => cardObserver.observe(el));
+
+        // ===== FINAL TERMINAL =====
+        const finalTermLines = document.querySelectorAll('.final-line-term');
+        const finalTerminalObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) { finalTermLines.forEach((l, i) => setTimeout(() => l.classList.add('visible'), i * 350)); finalTerminalObserver.disconnect(); } });
+        }, { threshold: 0.4 });
+        const finalTerminal = document.getElementById('final-terminal');
+        if (finalTerminal) finalTerminalObserver.observe(finalTerminal);
+
+        // ===== SCROLL INDICATOR =====
+        const sections = ['hero', 'origem', 'valores', 'cenarios', 'debugger', 'codigo', 'rituais', 'final'];
+        const dots = document.querySelectorAll('.scroll-dot');
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) dots.forEach(d => d.classList.toggle('active', d.dataset.section === e.target.id)); });
+        }, { threshold: 0.5 });
+        sections.forEach(id => { const s = document.getElementById(id); if (s) sectionObserver.observe(s); });
+        dots.forEach(d => d.addEventListener('click', () => scrollToSection(d.dataset.section)));
+
+        // ===== PARTICLES (rede de código) =====
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        class Particle {
+            constructor() { this.reset(); }
+            reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 1.5 + 0.5; this.speedX = (Math.random() - 0.5) * 0.3; this.speedY = (Math.random() - 0.5) * 0.3; this.opacity = Math.random() * 0.3 + 0.1; }
+            update() { this.x += this.speedX; this.y += this.speedY; if (this.x < 0 || this.x > canvas.width) this.speedX *= -1; if (this.y < 0 || this.y > canvas.height) this.speedY *= -1; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = `rgba(255,255,255,${this.opacity})`; ctx.fill(); }
+        }
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
+        function drawConnections() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y, dist = Math.sqrt(dx*dx+dy*dy);
+                    if (dist < 150) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(255,70,38,${0.06 * (1 - dist/150)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
+                }
+            }
+        }
+        function animateParticles() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p => { p.update(); p.draw(); }); drawConnections(); requestAnimationFrame(animateParticles); }
+        animateParticles();
+        document.addEventListener('mousemove', (e) => {
+            particles.forEach(p => { const dx = p.x - e.clientX, dy = p.y - e.clientY, dist = Math.sqrt(dx*dx+dy*dy); if (dist < 150) { p.x += dx*0.01; p.y += dy*0.01; } });
+        });
+
+        // ===== SCROLL: mais bruto conforme desce =====
+        const scanlines = document.getElementById('scanlines');
+        const grain = document.getElementById('grain');
+        function updateBrut() {
+            const max = Math.max(1, document.body.scrollHeight - window.innerHeight);
+            const p = window.scrollY / max;
+            // rawness começa aos 30% e chega ao máximo aos 95%
+            const brut = Math.min(1, Math.max(0, (p - 0.30) / 0.65));
+            document.documentElement.style.setProperty('--brut', brut.toFixed(3));
+            scanlines.style.opacity = (brut * 0.35).toFixed(3);
+            grain.style.opacity = (brut * 0.5).toFixed(3);
+            const nav = document.getElementById('nav-bar');
+            if (window.scrollY > 100) { nav.style.background = 'rgba(22,23,26,0.95)'; nav.style.backdropFilter = 'blur(10px)'; }
+            else { nav.style.background = 'linear-gradient(to bottom, rgba(22,23,26,0.95), transparent)'; nav.style.backdropFilter = 'none'; }
+        }
+        window.addEventListener('scroll', updateBrut, { passive: true });
+        updateBrut();
+    </script>
+</body>
+</html>
