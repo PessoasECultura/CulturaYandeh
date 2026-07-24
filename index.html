@@ -26,7 +26,7 @@
             --yh-orange-light: var(--red-line);
             --yh-magenta: var(--red-line);
             --yh-pink: var(--red-line);
-            --deep-space: #141414;
+            --deep-space: #0e1420;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
@@ -53,31 +53,69 @@
         .bang-enter:hover { background: var(--red-line); box-shadow: 0 0 40px rgba(255,46,1,0.5); }
 
         /* ===== CAMADAS CÓSMICAS ===== */
-        #space { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: opacity 0.3s linear; }
+        #space { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; transition: opacity 0.3s linear; perspective: 1200px; }
         #space .nebula {
             position: absolute; inset: -20%;
             background:
-                radial-gradient(ellipse 50% 40% at 28% 22%, rgba(255,255,255,0.05), transparent 60%),
-                radial-gradient(ellipse 46% 38% at 76% 66%, rgba(233,226,211,0.04), transparent 62%),
-                linear-gradient(118deg, transparent 42%, rgba(255,255,255,0.028) 50%, transparent 58%);
+                radial-gradient(ellipse 55% 45% at 28% 22%, rgba(80,120,190,0.08), transparent 60%),
+                radial-gradient(ellipse 46% 38% at 76% 66%, rgba(120,150,210,0.05), transparent 62%),
+                linear-gradient(118deg, transparent 42%, rgba(150,180,230,0.035) 50%, transparent 58%);
             animation: drift 70s ease-in-out infinite alternate;
         }
         @keyframes drift { 0% { transform: translate3d(0,0,0) scale(1);} 100% { transform: translate3d(-2%,-2%,0) scale(1.08);} }
         /* planetas sóbrios (esferas escuras + leve luz vermelha) */
         .planet { position: absolute; border-radius: 50%; }
-        .planet-1 { width: clamp(120px, 17vw, 230px); height: clamp(120px, 17vw, 230px); top: 14%; right: 9%;
-            background: radial-gradient(circle at 34% 30%, #3a3d42, #1b1d21 55%, #0e0f12 100%);
-            box-shadow: 0 0 55px rgba(255,255,255,0.05), inset -22px -18px 46px rgba(0,0,0,0.65); animation: float1 20s ease-in-out infinite; }
-        .planet-1::after { content: ''; position: absolute; inset: -6% -32%; border: 1px solid rgba(255,255,255,0.14); border-radius: 50%; transform: rotate(16deg); animation: ringspin 44s linear infinite; }
-        .planet-3 { width: clamp(48px, 7vw, 88px); height: clamp(48px, 7vw, 88px); top: 30%; left: 15%;
-            background: radial-gradient(circle at 35% 32%, #45484e, #232529 60%, #131417 100%);
-            box-shadow: 0 0 26px rgba(0,0,0,0.5); animation: float2 26s ease-in-out infinite; }
+        .planet-1 { width: clamp(160px, 24vw, 360px); height: clamp(160px, 24vw, 360px); top: 32%; left: 52%; opacity: 0; will-change: transform, opacity;
+            background: radial-gradient(circle at 34% 30%, #4a3230, #241614 55%, #0f0a09 100%);
+            box-shadow: inset -30px -24px 60px rgba(0,0,0,0.7), 0 0 70px rgba(255,46,1,0.10); }
+        /* anel de código (dados) em volta dos planetas */
+        .pring { position: absolute; inset: -30% -12%; border-radius: 50%; transform: rotateX(72deg); pointer-events: none; opacity: 0.85;
+            background: repeating-conic-gradient(from 0deg, rgba(255,46,1,0.75) 0deg 1.3deg, transparent 1.3deg 6.5deg);
+            -webkit-mask: radial-gradient(closest-side, transparent 63%, #000 65%, #000 82%, transparent 84%);
+            mask: radial-gradient(closest-side, transparent 63%, #000 65%, #000 82%, transparent 84%);
+            animation: pring-spin 30s linear infinite; }
+        @keyframes pring-spin { to { transform: rotateX(72deg) rotate(360deg); } }
+        .pj { opacity: 0; will-change: transform, opacity; }
+        .planet-3 { width: clamp(140px, 20vw, 300px); height: clamp(140px, 20vw, 300px); top: 42%; left: 12%; opacity: 0; will-change: transform, opacity;
+            background: radial-gradient(circle at 35% 32%, #43464d, #232529 60%, #101215 100%);
+            box-shadow: inset -26px -20px 56px rgba(0,0,0,0.7), 0 0 60px rgba(255,255,255,0.05); }
         @keyframes float1 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-28px); } }
         @keyframes float2 { 0%,100% { transform: translateY(0); } 50% { transform: translateY(24px); } }
         @keyframes ringspin { to { transform: rotate(376deg); } }
+        /* buraco negro (fundo imersivo) */
+        .blackhole { position: absolute; top: 0; left: 0; transform: translate(-50%,-50%); width: clamp(70px, 9vw, 150px); aspect-ratio: 1; pointer-events: none; }
+        /* átomo: núcleo + elétrons em órbitas ordenadas (câmera = scroll) */
+        #planet-system { position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform: translate(-50%,-50%) scale(0.5); transform-style: preserve-3d; will-change: transform; }
+        .aorbit { position: absolute; top: 0; left: 0; width: 30vmin; height: 30vmin; transform-style: preserve-3d; }
+        .aorbit-1 { transform: translate(-50%,-50%) rotateZ(0deg) rotateX(66deg); }
+        .aorbit-2 { transform: translate(-50%,-50%) rotateZ(60deg) rotateX(66deg); }
+        .aorbit-3 { transform: translate(-50%,-50%) rotateZ(120deg) rotateX(66deg); }
+        .aorbit .ring { position: absolute; inset: 0; border-radius: 50%; }
+        .aorbit-1 .ring { border: 1px solid rgba(255,255,255,0.22); }
+        .aorbit-2 .ring { border: 1px dashed rgba(255,46,1,0.55); }
+        .aorbit-3 .ring { border: 1px solid rgba(255,255,255,0.14); }
+        .aorbit .spin { position: absolute; inset: 0; }
+        .aorbit-1 .spin { animation: aspin 26s linear infinite; }
+        .aorbit-2 .spin { animation: aspin 40s linear infinite reverse; }
+        .aorbit-3 .spin { animation: aspin 20s linear infinite; }
+        .aorbit .e { position: absolute; top: -1.4vmin; left: 50%; margin-left: -1.4vmin; width: 2.8vmin; height: 2.8vmin; border-radius: 50%; }
+        .aorbit-1 .e { background: radial-gradient(circle at 35% 32%, #d3d3d3, #6a6a6a); box-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .aorbit-2 .e { background: radial-gradient(circle at 35% 32%, #ff7a5c, #FF2E01); box-shadow: 0 0 12px rgba(255,46,1,0.5); }
+        .aorbit-3 .e { background: radial-gradient(circle at 35% 32%, #e9e2d3, #a99f88); box-shadow: 0 0 10px rgba(233,226,211,0.3); }
+        @keyframes aspin { to { transform: rotate(360deg); } }
+        /* código nas órbitas — aparece conforme aproxima (--detail via scroll) */
+        .rglyph { position: absolute; top: 50%; left: 50%; font-family: 'JetBrains Mono', monospace; font-size: 0.85vmin; white-space: nowrap; color: rgba(255,46,1,0.7); opacity: var(--detail, 0); text-shadow: 0 0 3px rgba(255,46,1,0.35); }
+        .aorbit-2 .rglyph { color: rgba(255,120,90,0.8); }
+        .aorbit-3 .rglyph { color: rgba(233,226,211,0.65); text-shadow: none; }
+        .bh-glow { position: absolute; inset: -30%; border-radius: 50%; background: radial-gradient(circle, rgba(255,46,1,0.10), transparent 62%); }
+        .bh-ring { position: absolute; inset: 0; border-radius: 50%; filter: blur(4px); opacity: 0.85; transform: rotateX(74deg) scale(1.18);
+            background: conic-gradient(from 90deg, rgba(255,46,1,0), rgba(255,150,70,0.85), #ffffff, rgba(255,46,1,0.85), rgba(120,20,0,0.12), rgba(255,46,1,0.85), rgba(255,180,110,0.85), rgba(255,46,1,0));
+            animation: bh-spin 16s linear infinite; }
+        .bh-core { position: absolute; inset: 27%; border-radius: 50%; background: radial-gradient(circle at 50% 44%, #0b0b0b 58%, #000 100%); box-shadow: 0 0 50px 8px rgba(0,0,0,0.9), 0 0 130px 34px rgba(255,46,1,0.14); }
+        @keyframes bh-spin { to { transform: rotateX(74deg) scale(1.18) rotate(360deg); } }
         #stars-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; transition: opacity 0.3s linear; }
         /* detritos -> código (camada que atravessa a página toda) */
-        #debris-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.85; }
+        #debris-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; }
         /* vinheta: fecha conforme desce = mais profundo/íntimo */
         #vignette { position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity 0.25s linear;
             background: radial-gradient(ellipse 92% 92% at 50% 42%, transparent 40%, rgba(8,6,5,0.92) 100%); }
@@ -209,6 +247,7 @@
         .valor-col-head { display: flex; align-items: center; gap: 1rem; }
         .valor-col:not(.active) .valor-col-head { flex-direction: column; gap: 1.3rem; align-items: center; }
         .valor-col-head .valor-icon { width: 38px; height: 38px; margin: 0; animation: none; flex-shrink: 0; }
+        .valor-icon.emoji { display: flex; align-items: center; justify-content: center; font-size: 1.7rem; line-height: 1; }
         .valor-num { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.2em; color: var(--red-line); flex-shrink: 0; }
         .valor-name { white-space: nowrap; font-size: 1.15rem; font-weight: 600; color: var(--branco); transition: color 0.3s ease; }
         .valor-col:not(.active) .valor-name { writing-mode: vertical-rl; transform: rotate(180deg); color: var(--cinza-claro); letter-spacing: 0.03em; }
@@ -423,6 +462,12 @@
     <!-- CAMADAS CÓSMICAS -->
     <div id="space" aria-hidden="true">
         <div class="nebula"></div>
+        <div id="planet-system">
+            <div class="blackhole"><div class="bh-glow"></div><div class="bh-ring"></div><div class="bh-core"></div></div>
+            <div class="aorbit aorbit-1"><div class="ring"></div><div class="spin"><div class="e"></div></div></div>
+            <div class="aorbit aorbit-2"><div class="ring"></div><div class="spin"><div class="e"></div></div></div>
+            <div class="aorbit aorbit-3"><div class="ring"></div><div class="spin"><div class="e"></div></div></div>
+        </div>
     </div>
     <canvas id="stars-canvas" aria-hidden="true"></canvas>
     <canvas id="debris-canvas" aria-hidden="true"></canvas>
@@ -467,11 +512,11 @@
     <!-- MANIFESTO (pessoas) -->
     <section class="manifesto" id="manifesto">
         <div class="manifesto-label reveal">// MANIFESTO</div>
-        <h2 class="manifesto-title reveal">Dá pra copiar tudo.<br>Menos <span class="hl">as nossas pessoas.</span></h2>
+        <h2 class="manifesto-title reveal">Estamos aqui para fazer o <br>melhor <span class="hl"><br>E ir mais longe</span></h2>
         <div class="manifesto-lines">
-            <p class="reveal">Produto, processo, até código — dá pra copiar.</p>
-            <p class="reveal">O jeito de ser Yandeco, não.</p>
-            <p class="reveal"><strong>Cultura não é o que está escrito. É o que a gente faz — junto.</strong></p>
+            <p class="reveal">É mais do que produtos, processos e códigos.</p>
+            <p class="reveal">O jeito de ser Yandeco.</p>
+            <p class="reveal"><strong>Cultura não é o que está escrito. É o que a gente faz, junto.</strong></p>
         </div>
         <div class="culture-strip reveal">
             <div class="marquee left">
@@ -547,7 +592,7 @@
         <div class="run-container">
             <div class="section-label reveal">02 — RODE A CULTURA</div>
             <h2 class="section-title reveal">A cultura não se lê.<br><span class="highlight">Se vive.</span></h2>
-            <p class="section-subtitle reveal">Escolha como você reagiria. Não existe resposta certa — existe o jeito Yandeh de pensar.</p>
+            <p class="section-subtitle reveal">Escolha como você reagiria. Não existe resposta certa, existe o jeito Yandeh de pensar.</p>
 
             <div class="scenario-carousel reveal" style="margin-top:4rem;">
             <div class="scenario-viewport">
@@ -698,31 +743,41 @@
             <div class="section-label reveal">05 — CULTURE IN ACTION</div>
             <h2 class="section-title reveal">O código<br><span class="highlight">rodando na vida real.</span></h2>
             <p class="section-subtitle reveal">Rituais não são benefícios. São momentos onde a cultura se materializa.</p>
-            <div class="action-grid">
-                <div class="action-card card reveal">
-                    <div class="action-emoji">☕</div><div class="action-exe">OPEN_CHANNEL.exe</div>
-                    <div class="action-title">Lucas + Você</div>
-                    <div class="action-desc">Café da manhã com o CEO. Um papo leve, direto e humano que aproxima liderança e time.</div>
+            <div class="valores-accordion reveal">
+                <div class="valor-col active" onclick="openValor(this)">
+                    <div class="valor-col-head"><span class="valor-num">01</span><div class="valor-icon emoji">☕</div><span class="valor-name">Lucas + Você</span></div>
+                    <div class="valor-detail">
+                        <div class="action-exe">OPEN_CHANNEL.exe</div>
+                        <div class="action-desc">Café da manhã com o CEO. Um papo leve, direto e humano que aproxima liderança e time.</div>
+                    </div>
                 </div>
-                <div class="action-card card reveal">
-                    <div class="action-emoji">📊</div><div class="action-exe">SYNC_ALL.exe</div>
-                    <div class="action-title">YH Junto</div>
-                    <div class="action-desc">Encontro mensal de resultados e aprendizados. Todos conectados à estratégia, na mesma direção.</div>
+                <div class="valor-col" onclick="openValor(this)">
+                    <div class="valor-col-head"><span class="valor-num">02</span><div class="valor-icon emoji">📊</div><span class="valor-name">YH Junto</span></div>
+                    <div class="valor-detail">
+                        <div class="action-exe">SYNC_ALL.exe</div>
+                        <div class="action-desc">Encontro mensal de resultados e aprendizados. Todos conectados à estratégia, na mesma direção.</div>
+                    </div>
                 </div>
-                <div class="action-card card reveal">
-                    <div class="action-emoji">🎉</div><div class="action-exe">CONNECT.exe</div>
-                    <div class="action-title">Quarta Junto</div>
-                    <div class="action-desc">Happy hour do mês no escritório. Vínculo, celebração e a leveza que também é nosso jeito.</div>
+                <div class="valor-col" onclick="openValor(this)">
+                    <div class="valor-col-head"><span class="valor-num">03</span><div class="valor-icon emoji">🎉</div><span class="valor-name">Quarta Junto</span></div>
+                    <div class="valor-detail">
+                        <div class="action-exe">CONNECT.exe</div>
+                        <div class="action-desc">Happy hour do mês no escritório. Vínculo, celebração e a leveza que também é nosso jeito.</div>
+                    </div>
                 </div>
-                <div class="action-card card reveal">
-                    <div class="action-emoji">🌎</div><div class="action-exe">SUMMIT.exe</div>
-                    <div class="action-title">Yandeh Summit</div>
-                    <div class="action-desc">Nosso encontro anual com todas as regiões. Propósito, estratégia e pertencimento.</div>
+                <div class="valor-col" onclick="openValor(this)">
+                    <div class="valor-col-head"><span class="valor-num">04</span><div class="valor-icon emoji">🌎</div><span class="valor-name">Yandeh Summit</span></div>
+                    <div class="valor-detail">
+                        <div class="action-exe">SUMMIT.exe</div>
+                        <div class="action-desc">Nosso encontro anual com todas as regiões. Propósito, estratégia e pertencimento.</div>
+                    </div>
                 </div>
-                <div class="action-card card reveal">
-                    <div class="action-emoji">💬</div><div class="action-exe">FEEDBACK.exe</div>
-                    <div class="action-title">Feedback Day</div>
-                    <div class="action-desc">O dia de pedir e dar feedback — aberto, construtivo e baseado em fatos.</div>
+                <div class="valor-col" onclick="openValor(this)">
+                    <div class="valor-col-head"><span class="valor-num">05</span><div class="valor-icon emoji">💬</div><span class="valor-name">Feedback Day</span></div>
+                    <div class="valor-detail">
+                        <div class="action-exe">FEEDBACK.exe</div>
+                        <div class="action-desc">O dia de pedir e dar feedback — aberto, construtivo e baseado em fatos.</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -897,7 +952,8 @@
         }
         // ===== valores: clique no símbolo pra abrir =====
         function openValor(el) {
-            document.querySelectorAll('#valores-accordion .valor-col').forEach(c => c.classList.remove('active'));
+            const acc = el.closest('.valores-accordion');
+            (acc || document).querySelectorAll('.valor-col').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
         }
         // ===== carrossel de cenários =====
@@ -1013,7 +1069,7 @@
         function sizeStars() { starsCanvas.width = window.innerWidth; starsCanvas.height = window.innerHeight; }
         function initStars() {
             stars = [];
-            const n = Math.min(760, Math.floor(window.innerWidth * window.innerHeight / 2200));
+            const n = Math.min(440, Math.floor(window.innerWidth * window.innerHeight / 3600));
             for (let i = 0; i < n; i++) {
                 stars.push({ x: Math.random() - 0.5, y: Math.random() - 0.5, z0: Math.random(),
                     tw: Math.random() * Math.PI * 2, tws: Math.random() * 0.04 + 0.005, warm: Math.random() < 0.08 });
@@ -1035,7 +1091,7 @@
                     if (px < -30 || px > W + 30 || py < -30 || py > H + 30) continue;
                     s.tw += s.tws;
                     const size = Math.min(3.4, 0.35 + near * 3.2);
-                    const a = (0.12 + near * 0.88) * (0.7 + Math.sin(s.tw) * 0.3) * spaceOpacity;
+                    const a = (0.12 + near * 0.88) * (0.7 + Math.sin(s.tw) * 0.3) * spaceOpacity * 0.6;
                     if (near > 0.72) { sctx.shadowBlur = 6; sctx.shadowColor = 'rgba(255,255,255,0.85)'; }
                     sctx.beginPath(); sctx.arc(px, py, size, 0, Math.PI * 2);
                     sctx.fillStyle = s.warm ? `rgba(233,226,211,${a})` : `rgba(255,255,255,${a})`;
@@ -1077,26 +1133,11 @@
             columns = []; const step = 22;
             for (let x = 10; x <= debrisCanvas.width; x += step) columns.push({ x, y: Math.random() * debrisCanvas.height, speed: Math.random() * 2.4 + 1.3, len: Math.floor(Math.random() * 11 + 6) });
         }
-        initOrbs(); sizeDebris();
-        window.addEventListener('resize', () => { sizeDebris(); initOrbs(); });
+        sizeDebris();
+        window.addEventListener('resize', () => { sizeDebris(); });
         function animDebris() {
             dctx.clearRect(0, 0, debrisCanvas.width, debrisCanvas.height);
             const p = scrollP;
-            // planetinhas se soltando da órbita do hero rumo a valores
-            const release = Math.min(1, Math.max(0, (p - 0.06) / 0.22));
-            const orbA = Math.max(0, 1 - Math.max(0, (p - 0.20) / 0.14));
-            if (orbA > 0.01) {
-                const cx = debrisCanvas.width / 2, cyt = debrisCanvas.height * 0.46;
-                for (const o of orbs) {
-                    o.ang += o.spin * 0.004;
-                    const x = cx + Math.cos(o.ang) * o.rad + o.sway * release;
-                    const y = cyt + Math.sin(o.ang) * o.rad * 0.6 + release * debrisCanvas.height * 0.95 * o.drift;
-                    const g = dctx.createRadialGradient(x - o.size * 0.3, y - o.size * 0.3, 0, x, y, o.size);
-                    g.addColorStop(0, `rgba(130,130,130,${orbA})`); g.addColorStop(0.7, `rgba(45,45,45,${orbA})`); g.addColorStop(1, `rgba(12,12,12,${orbA * 0.6})`);
-                    dctx.beginPath(); dctx.arc(x, y, o.size, 0, Math.PI * 2); dctx.fillStyle = g; dctx.fill();
-                    dctx.strokeStyle = `rgba(255,46,1,${orbA * 0.3})`; dctx.lineWidth = 1; dctx.stroke();
-                }
-            }
             // matrix sutil, intensifica de valores pra baixo
             const mA = Math.min(0.42, Math.max(0, (p - 0.18) / 0.3));
             if (mA > 0.01) {
@@ -1132,7 +1173,41 @@
             codeness = Math.min(1, Math.max(0, (p - 0.15) / 0.65));           // detrito vira código
             spaceEl.style.opacity = (spaceOpacity * 0.9).toFixed(3);
             vignetteEl.style.opacity = Math.min(0.9, p * 1.05).toFixed(3);    // fecha = mais profundo/íntimo
+            // storytelling: voar pelos planetas do fundo (zoom/fly-by) rumo ao buraco negro
+            // câmera: home = sistema solar pequeno (longe) -> zoom-in agressivo tópico a tópico
+            if (planetSystem) {
+                const cam = 0.5 + scrollP * 4.4;       // átomo pequeno na home · aproxima muito mais forte
+                const rot = scrollP * 60;              // leve navegação (sem rodopio)
+                planetSystem.style.transform = 'translate(-50%,-50%) rotateZ(' + rot.toFixed(1) + 'deg) scale(' + cam.toFixed(3) + ')';
+                // mais perto = mais detalhe: o código nas órbitas aparece
+                const detail = Math.min(1, Math.max(0, (cam - 0.95) / 1.05));
+                planetSystem.style.setProperty('--detail', detail.toFixed(3));
+            }
         }
+        const planetSystem = document.getElementById('planet-system');
+        // código ao longo das órbitas (aparece com o zoom via --detail)
+        (function () {
+            const CH = '01{}<>/=;:+*[]|';
+            const glyphs = [];
+            document.querySelectorAll('#planet-system .aorbit .ring').forEach(ring => {
+                const N = 46;
+                for (let i = 0; i < N; i++) {
+                    const a = (i / N) * 360;
+                    const g = document.createElement('span');
+                    g.className = 'rglyph';
+                    g.textContent = CH[Math.floor(Math.random() * CH.length)];
+                    g.style.transform = 'translate(-50%,-50%) rotate(' + a + 'deg) translateY(-15vmin) rotate(' + (-a) + 'deg)';
+                    ring.appendChild(g); glyphs.push(g);
+                }
+            });
+            // flicker estilo matrix nos anéis
+            setInterval(() => {
+                for (let k = 0; k < 10; k++) {
+                    const g = glyphs[Math.floor(Math.random() * glyphs.length)];
+                    if (g) g.textContent = CH[Math.floor(Math.random() * CH.length)];
+                }
+            }, 100);
+        })();
         window.addEventListener('scroll', updateScroll, { passive: true });
         updateScroll();
 
@@ -1150,6 +1225,7 @@
         window.addEventListener('mousemove', (e) => {
             const ox = (e.clientX / window.innerWidth - 0.5), oy = (e.clientY / window.innerHeight - 0.5);
             if (heroOrbitEl) heroOrbitEl.style.transform = `translate(calc(-50% + ${(ox * 44).toFixed(1)}px), calc(-50% + ${(oy * 44).toFixed(1)}px))`;
+            if (spaceEl) spaceEl.style.transform = `translate(${(ox * -18).toFixed(1)}px, ${(oy * -18).toFixed(1)}px)`;
         }, { passive: true });
     </script>
 </body>
